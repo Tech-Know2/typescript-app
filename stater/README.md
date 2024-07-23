@@ -1,0 +1,1 @@
+The goal of this application is to provide those who lack economic and financial infrastructure with the tools and assitance they need to take control of their finances and strart building wealth. I wish to take part in the closing of economic and wealth gaps by providing tools and resources to everyone on the planet with an internet connection
