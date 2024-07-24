@@ -20,7 +20,7 @@ export default async function AdminDashboard() {
     }
 
     return (
-        <div className="flex">
+        <div className="flex font-mono">
         {/* Vertical Navigation Bar */}
         <DashNavBar />
 

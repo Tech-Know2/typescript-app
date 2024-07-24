@@ -25,7 +25,7 @@ export default async function Dashboard() {
         <DashNavBar />
 
         {/* Main Content Area */}
-        <div className="flex-1 p-8 bg-gray-100">
+        <div className="flex-1 p-8 bg-gray-100 font-mono">
             {/* Giant Header/Welcome Text */}
             <h1 className="text-4xl font-bold mb-8">Welcome!</h1>
 
