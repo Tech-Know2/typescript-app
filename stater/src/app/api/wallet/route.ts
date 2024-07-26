@@ -37,6 +37,48 @@ export async function POST(req: Request, res: NextResponse) {
     }
 }
 
+export async function DELETE(req: NextRequest, res: NextResponse)
+{
+    if (req.method === 'DELETE')
+    {
+
+        try {
+            await connection();
+
+            
+            
+        } catch (error) {
+            console.error('Error deleting wallet', error);
+            return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+
+    } else 
+    {
+        return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+    }
+}
+
+export async function PUT(req: NextRequest, res: NextResponse)
+{
+    if (req.method === 'PUT')
+    {
+
+        try {
+            await connection();
+
+            
+            
+        } catch (error) {
+            console.error('Error updating wallet', error);
+            return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+
+    } else 
+    {
+        return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+    }
+}
+
 export async function GET(req: NextRequest) {
     if (req.method === 'GET') {
         try {
