@@ -27,7 +27,7 @@ export default function Accounts() {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            'ownerID': user?.id || '', // Pass the ownerID as a header
+                            'ownerID': user?.id || '',
                         },
                     });
 
@@ -65,7 +65,7 @@ export default function Accounts() {
                 {/* Giant Header/Welcome Text */}
                 <h1 className="text-3xl font-bold mb-8">Your Accounts</h1>
                 <Ribon totalSum={totalSum} accountCount={accountCount} />
-                <Wallets />
+                <Wallets wallets={accountsData} />
             </div>
         </div>
     );

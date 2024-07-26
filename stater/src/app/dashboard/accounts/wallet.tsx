@@ -1,10 +1,20 @@
-"use client";
+"use client"
 
-import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import React, { useState } from 'react';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import Balances from './balances';
 
-export default function Wallets() {
+interface Wallet {
+    accountName: string;
+    network: string;
+    balance: number;
+}
+
+interface BalanceProps {
+    wallets: Wallet[];
+}
+
+export default function Wallets({ wallets }: BalanceProps) {
     const { user, isAuthenticated } = useKindeBrowserClient();
     const [isFormVisible, setFormVisible] = useState(false);
     const [selectedOption, setSelectedOption] = useState("");
@@ -52,16 +62,13 @@ export default function Wallets() {
                 });                
 
                 if (response.ok) {
-                    
-                    
-
+                    // Handle successful creation here
                 } else {
                     console.error('Failed to create wallet');
                 }
             } catch (error) {
                 console.error('Error creating wallet:', error);
             } finally {
-                // Reset form fields and hide the form
                 setFormVisible(false);
                 setAccountName("");
                 setAccountDescription("");
@@ -73,7 +80,7 @@ export default function Wallets() {
     const isFormValid = accountName && accountDescription && selectedOption;
 
     return (
-        <div className="flex h-screen font-mono">
+        <div className="flex h-[60vh] font-mono">
             <div 
                 className="absolute left-1/2 transform -translate-x-1/2 space-y-2"
                 style={{ top: '30%' }}
@@ -100,7 +107,7 @@ export default function Wallets() {
                     </button>
                 </div>
 
-                <Balances />
+                <Balances wallets={wallets} />
             </div>
 
             {isFormVisible && (

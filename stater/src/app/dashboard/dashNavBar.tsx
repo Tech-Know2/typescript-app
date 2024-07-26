@@ -3,20 +3,24 @@
 import Link from 'next/link';
 import { RegisterLink, LoginLink, LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { usePathname } from 'next/navigation'
 
 const DashNavBar = () => {
   const { user, isAuthenticated, isLoading, getPermission } = useKindeBrowserClient();
   const isClient = getPermission('view:client');
   const isAdmin = getPermission('view:admin');
 
+  const pathname = usePathname() //Will eventually use for dynamic displays for the nav elements
+
   const commonLinks = (
     <>
       <Link href="/dashboard" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Dashboard</Link>
       <Link href="/dashboard/accounts" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Accounts</Link>
-      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Treasury</Link>
-      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Mint</Link>
-      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Research</Link>
+      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Transfer</Link>
       <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Trade</Link>
+      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Research</Link>
+      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Ramp</Link>
+      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Mint</Link>
     </>
   );
 

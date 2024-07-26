@@ -10,52 +10,32 @@ interface Wallet {
     balance: number;
 }
 
-export default function Balances() {
-    const { user, isAuthenticated } = useKindeBrowserClient();
+interface BalanceProps {
+    wallets: Wallet[];
+}
+
+export default function Balances({ wallets }: BalanceProps) {
+    const { isAuthenticated } = useKindeBrowserClient();
     const [accountsData, setAccountsData] = useState<Wallet[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
 
     useEffect(() => {
-        const loadAccounts = async () => {
-            if (isAuthenticated) {
-                try {
-                    const response = await fetch('/api/wallet', {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'ownerID': user?.id || '', // Pass the ownerID as a header
-                        },
-                    });
-
-                    if (response.ok) {
-                        const wallets = await response.json();
-                        setAccountsData(wallets);
-                    } else {
-                        console.log("Failed to find wallets");
-                    }
-                } catch (error) {
-                    console.error('Error finding wallets:', error);
-                } finally {
-                    setLoading(false);
-                }
-            }
-        };
-
-        loadAccounts();
-    }, [isAuthenticated, user?.id]);
+        if (isAuthenticated) {
+            setAccountsData(wallets);
+            setLoading(false); // Ensure to update loading state
+        }
+    }, [isAuthenticated, wallets]);
 
     if (loading) {
         return <p>Loading...</p>;
     }
 
-    // Calculate paginated data
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentItems = accountsData.slice(indexOfFirstItem, indexOfLastItem);
 
-    // Calculate total pages
     const totalPages = Math.ceil(accountsData.length / itemsPerPage);
 
     return (

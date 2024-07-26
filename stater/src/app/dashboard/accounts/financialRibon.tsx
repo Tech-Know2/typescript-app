@@ -19,11 +19,11 @@ export default function Ribon({ totalSum, accountCount }: RibonProps) {
         </div>
         {/* Second Box: Account Count */}
         <div className="flex-1 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center mx-2">
-          <p className="text-lg font-semibold">Account Count: {accountCount}</p>
+          <p className="text-lg font-semibold">Accounts: {accountCount}</p>
         </div>
         {/* Third Box: Sample Text */}
         <div className="flex-1 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center">
-          <p className="text-lg font-semibold">Sample Text</p>
+          <p className="text-lg font-semibold">Big Things Coming Soon</p>
         </div>
       </div>
     </div>
