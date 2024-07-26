@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-// Define the schema for a crypto wallet
+// Define the schema for a crypto wallet with automatic timestamps
 const walletSchema = new Schema({
   owner: {
     type: String,
@@ -16,27 +16,21 @@ const walletSchema = new Schema({
   },
   blockchain: {
     type: String,
-    required: true, // Ensure that each wallet specifies the blockchain it uses
+    required: true,
     enum: ['Bitcoin', 'Solana', 'Ethereum', 'Stellar', 'Polygon', 'Optimism'],
     default: 'Stellar',
   },
   address: {
     type: String,
-    required: true, // Wallet address is typically required
-    unique: true,   // Ensure that each address is unique in the database
+    required: true,
+    unique: true,
   },
   balance: {
     type: Number,
     default: 0,
   },
-  creationDate: {
-    type: Date,
-    default: Date.now,
-  },
-  lastUpdated: {
-    type: Date,
-    default: Date.now,
-  },
+}, {
+  timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
 
 // Create a model using the schema

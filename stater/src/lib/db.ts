@@ -1,16 +1,18 @@
-import { Schema, model, connect } from 'mongoose';
+import mongoose from 'mongoose';
 
-const mongoose = require('mongoose');
+let isConnected: boolean = false;
 
 export default async function connection() {
-    try {
-        // Attempt to connect to MongoDB
-        await mongoose.connect(process.env.MONGODB_URI as string);
+    if (isConnected) {
+        console.log('Already connected to MongoDB');
+        return;
+    }
 
-        // Log a success message if the connection is successful
+    try {
+        await mongoose.connect(process.env.MONGODB_URI as string);
+        isConnected = true;
         console.log('MongoDB connection successful');
     } catch (error) {
-        // Log an error message if the connection fails
         console.error('MongoDB connection error:', error);
     }
 }

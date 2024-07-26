@@ -24,7 +24,6 @@ const DashNavBar = () => {
 
       {/* Sign Out Button */}
       <h2 className='mb-0px'>{user?.given_name} {user?.family_name}</h2>
-      <h3 className='mt-0px'>{user?.email}</h3>
       <LogoutLink className="text-white bg-black hover:bg-gray-700 px-5 py-2 rounded-md text-sm font-medium w-[70%] flex items-center justify-center">
         Sign Out
       </LogoutLink>

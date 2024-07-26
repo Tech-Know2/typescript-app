@@ -1,12 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
-import DashNavBar from '../dashNavBar';
-import {getKindeServerSession} from "@kinde-oss/kinde-auth-nextjs/server";
-import { redirect } from 'next/navigation';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
-import mongoose from 'mongoose';
-import Wallet from '@/models/wallet';
+import Balances from './balances';
 
 export default function Wallets() {
     const { user, isAuthenticated } = useKindeBrowserClient();
@@ -25,7 +21,7 @@ export default function Wallets() {
 
     const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = event.target;
-        if (value.length <= 20) {
+        if (value.length <= 16) {
             setAccountName(value);
         }
     };
@@ -38,18 +34,42 @@ export default function Wallets() {
     };
 
     const handleSubmit = async () => {
-        
-        if(isAuthenticated){
-            const newWallet = {
+        if (isAuthenticated) {
+            const walletData = {
                 owner: user?.id,
                 accountName,
                 accountDescription,
                 blockchain: selectedOption,
-                address: 0,
-                balance: 0, // Default balance
             };
+
+            try {
+                const response = await fetch('/api/wallet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(walletData),
+                });                
+
+                if (response.ok) {
+                    const createdWallet = await response.json();
+                    console.log('Wallet created successfully:', createdWallet);
+                } else {
+                    console.error('Failed to create wallet');
+                }
+            } catch (error) {
+                console.error('Error creating wallet:', error);
+            } finally {
+                // Reset form fields and hide the form
+                setFormVisible(false);
+                setAccountName("");
+                setAccountDescription("");
+                setSelectedOption("");
+            }
         }
     };
+
+    const isFormValid = accountName && accountDescription && selectedOption;
 
     return (
         <div className="flex h-screen font-mono">
@@ -58,7 +78,6 @@ export default function Wallets() {
                 style={{ top: '30%' }}
             >
                 <div className="flex space-x-2">
-                    {/* Textbox */}
                     <div className="flex flex-col">
                         <input
                             type="text"
@@ -68,11 +87,10 @@ export default function Wallets() {
                             className="border border-black rounded-md p-2 w-[45vw]"
                         />
                         <p className="text-gray-500 text-sm">
-                            {accountName.length}/20 characters
+                            {accountName.length}/16 characters
                         </p>
                     </div>
 
-                    {/* Button */}
                     <button
                         className="bg-gray-800 text-white font-bold px-4 py-2 rounded-md flex items-center justify-center"
                         onClick={toggleFormVisibility}
@@ -80,6 +98,8 @@ export default function Wallets() {
                         +
                     </button>
                 </div>
+
+                <Balances />
             </div>
 
             {isFormVisible && (
@@ -96,7 +116,7 @@ export default function Wallets() {
                                 className="border border-black rounded-md p-2 w-full"
                             />
                             <p className="text-gray-500 text-sm">
-                                {accountName.length}/20 characters
+                                {accountName.length}/16 characters
                             </p>
                         </div>
                         
@@ -113,12 +133,12 @@ export default function Wallets() {
                             </p>
                         </div>
                         
-                        {/* Dropdown Enum Field */}
                         <select
                             value={selectedOption}
                             onChange={handleSelectChange}
                             className="border border-black rounded-md p-2 w-full"
                         >
+                            <option value="" disabled>Select a Network</option>
                             <option value="Stellar">Stellar</option>
                             <option value="Bitcoin">Bitcoin</option>
                             <option value="Ethereum">Ethereum</option>
@@ -134,13 +154,18 @@ export default function Wallets() {
                             >
                                 Cancel
                             </button>
-                            <button className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md" onClick={handleSubmit}>
-                                Submit
-                            </button>
+                            {isFormValid && isAuthenticated &&(
+                                <button
+                                    className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md"
+                                    onClick={handleSubmit}
+                                >
+                                    Submit
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
             )}
         </div>
     );
-};
+}
