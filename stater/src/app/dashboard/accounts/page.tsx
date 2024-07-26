@@ -5,12 +5,8 @@ import DashNavBar from '../dashNavBar';
 import Ribon from './financialRibon';
 import Wallets from './wallet';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
-
-export interface Wallet {
-    accountName: string;
-    network: string;
-    balance: number;
-}
+import { ClipLoader } from 'react-spinners';
+import { Wallet } from '@/types/Wallet';
 
 export default function Accounts() {
     const { user, isAuthenticated } = useKindeBrowserClient();
@@ -23,11 +19,11 @@ export default function Accounts() {
         const loadAccounts = async () => {
             if (isAuthenticated) {
                 try {
-                    const response = await fetch('/api/wallet', {
+                    // Construct the URL with query parameters
+                    const response = await fetch(`/api/wallet?ownerID=${user?.id || ''}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
-                            'ownerID': user?.id || '',
                         },
                     });
 
@@ -52,7 +48,15 @@ export default function Accounts() {
     }, [isAuthenticated, user?.id]);
 
     if (loading) {
-        return <p>Loading...</p>;
+        return (
+            <div className="flex h-screen">
+                <DashNavBar />
+                <div className="flex flex-1 flex-col items-center justify-center bg-gray-100">
+                    <ClipLoader size={50} color={"#123abc"} loading={loading} />
+                    <p className="mt-4 text-lg font-medium">Loading your accounts, please wait...</p>
+                </div>
+            </div>
+        );
     }
 
     return (

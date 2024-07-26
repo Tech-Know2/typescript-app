@@ -3,12 +3,7 @@
 import React, { useState } from 'react';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import Balances from './balances';
-
-interface Wallet {
-    accountName: string;
-    network: string;
-    balance: number;
-}
+import { Wallet } from '@/types/Wallet';
 
 interface BalanceProps {
     wallets: Wallet[];
@@ -73,6 +68,8 @@ export default function Wallets({ wallets }: BalanceProps) {
                 setAccountName("");
                 setAccountDescription("");
                 setSelectedOption("");
+
+                window.location.reload();
             }
         }
     };

@@ -18,6 +18,7 @@ export default async function Dashboard() {
     if(!permission?.isGranted){
         redirect('../api/auth/login');
     }
+    
 
     return (
         <div className="flex">

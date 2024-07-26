@@ -3,12 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import AccountItem from './accounts';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
-
-interface Wallet {
-    accountName: string;
-    network: string;
-    balance: number;
-}
+import { Wallet } from '@/types/Wallet';
 
 interface BalanceProps {
     wallets: Wallet[];
@@ -46,9 +41,7 @@ export default function Balances({ wallets }: BalanceProps) {
                         <AccountItem
                             key={index}
                             index={index + indexOfFirstItem} // Adjust index for display
-                            accountName={account.accountName}
-                            network={account.network}
-                            balance={account.balance}
+                            account={account}
                         />
                     ))}
 

@@ -22,7 +22,7 @@ export async function POST(req: Request, res: NextResponse) {
                 accountName,
                 accountDescription,
                 blockchain,
-                address: 'test',  // Default value for address
+                address: accountName + blockchain,  // Temporary thing to assign unique values for the addresses
                 balance: 0,       // Default balance
             });
 
@@ -37,26 +37,39 @@ export async function POST(req: Request, res: NextResponse) {
     }
 }
 
-export async function DELETE(req: NextRequest, res: NextResponse)
-{
-    if (req.method === 'DELETE')
-    {
-
+export async function DELETE(req: NextRequest) {
+    if (req.method === 'DELETE') {
         try {
             await connection();
 
-            
-            
+            // Extract query parameters from the URL
+            const url = new URL(req.url);
+            const ownerID = url.searchParams.get('ownerID') || '';
+            const accountAddress = url.searchParams.get('accountAddress') || '';
+
+            // Validate required fields
+            if (!ownerID || !accountAddress) {
+                return NextResponse.json({ error: 'Missing ownerID or accountAddress' }, { status: 400 });
+            }
+
+            // Perform the deletion
+            const result = await Wallet.deleteOne({ owner: ownerID, address: accountAddress });
+
+            if (result.deletedCount === 0) {
+                return NextResponse.json({ error: 'No wallet found to delete' }, { status: 404 });
+            }
+
+            return NextResponse.json({ message: 'Wallet has been deleted' }, { status: 200 });
+
         } catch (error) {
             console.error('Error deleting wallet', error);
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
-
-    } else 
-    {
+    } else {
         return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
     }
 }
+
 
 export async function PUT(req: NextRequest, res: NextResponse)
 {
@@ -84,18 +97,30 @@ export async function GET(req: NextRequest) {
         try {
             await connection();
 
-            // Extract ownerID from headers
-            const ownerID = req.headers.get('ownerID') || '';
+            // Extract query parameters from the URL
+            const url = new URL(req.url);
+            const ownerID = url.searchParams.get('ownerID') || '';
+            const accountAddress = url.searchParams.get('accountAddress') || '';
+            const accountName = url.searchParams.get('accountName') || '';
 
             // Validate ownerID
             if (!ownerID) {
                 return NextResponse.json({ error: 'Missing ownerID' }, { status: 400 });
             }
 
-            // Query the database for wallets with the provided ownerID
-            const wallets = await Wallet.find({ owner: ownerID });
+            // Create a query object with explicit typing
+            const query: { owner: string; accountName?: string; address?: string } = { owner: ownerID };
+            if (accountName) {
+                query.accountName = accountName;
+            }
+            if (accountAddress) {
+                query.address = accountAddress;
+            }
 
-            return NextResponse.json(wallets, { status: 200 }); // Changed status code to 200 for successful retrieval
+            // Query the database for wallets with the provided ownerID (and optionally accountName or address)
+            const wallets = await Wallet.find(query);
+
+            return NextResponse.json(wallets, { status: 200 });
 
         } catch (error) {
             console.error('Error retrieving wallets:', error);
