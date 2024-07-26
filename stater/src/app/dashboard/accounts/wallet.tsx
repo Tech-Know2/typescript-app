@@ -1,9 +1,10 @@
-"use client"
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import Balances from './balances';
 import { Wallet } from '@/types/Wallet';
+import { useRouter } from 'next/navigation';
 
 interface BalanceProps {
     wallets: Wallet[];
@@ -11,10 +12,12 @@ interface BalanceProps {
 
 export default function Wallets({ wallets }: BalanceProps) {
     const { user, isAuthenticated } = useKindeBrowserClient();
+    const router = useRouter();
     const [isFormVisible, setFormVisible] = useState(false);
     const [selectedOption, setSelectedOption] = useState("");
     const [accountName, setAccountName] = useState("");
     const [accountDescription, setAccountDescription] = useState("");
+    const [isFormValid, setFormValid] = useState(false);
 
     const toggleFormVisibility = () => {
         setFormVisible(!isFormVisible);
@@ -38,6 +41,14 @@ export default function Wallets({ wallets }: BalanceProps) {
         }
     };
 
+    const validateForm = () => {
+        setFormValid(accountName.trim() !== "" && accountDescription.trim() !== "" && selectedOption !== "");
+    };
+
+    useEffect(() => {
+        validateForm();
+    }, [accountName, accountDescription, selectedOption]);
+
     const handleSubmit = async () => {
         if (isAuthenticated) {
             const walletData = {
@@ -54,10 +65,16 @@ export default function Wallets({ wallets }: BalanceProps) {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify(walletData),
-                });                
+                });
 
                 if (response.ok) {
-                    // Handle successful creation here
+                    const wallet = await response.json();
+                    const params = new URLSearchParams({
+                        accountAddress: wallet.address,
+                        accountName: wallet.accountName,
+                        owner: wallet.owner,
+                    });
+                    router.push(`/dashboard/accounts/manage?${params.toString()}`);
                 } else {
                     console.error('Failed to create wallet');
                 }
@@ -68,13 +85,9 @@ export default function Wallets({ wallets }: BalanceProps) {
                 setAccountName("");
                 setAccountDescription("");
                 setSelectedOption("");
-
-                window.location.reload();
             }
         }
     };
-
-    const isFormValid = accountName && accountDescription && selectedOption;
 
     return (
         <div className="flex h-[60vh] font-mono">
@@ -159,14 +172,13 @@ export default function Wallets({ wallets }: BalanceProps) {
                             >
                                 Cancel
                             </button>
-                            {isFormValid && isAuthenticated &&(
-                                <button
-                                    className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md"
-                                    onClick={handleSubmit}
-                                >
-                                    Submit
-                                </button>
-                            )}
+                            <button
+                                className={`bg-blue-500 text-white font-bold px-4 py-2 rounded-md ${!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={handleSubmit}
+                                disabled={!isFormValid}
+                            >
+                                Submit
+                            </button>
                         </div>
                     </div>
                 </div>

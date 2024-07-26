@@ -71,23 +71,42 @@ export async function DELETE(req: NextRequest) {
 }
 
 
-export async function PUT(req: NextRequest, res: NextResponse)
-{
-    if (req.method === 'PUT')
-    {
-
+export async function PATCH(req: NextRequest) {
+    if (req.method === 'PATCH') {
         try {
             await connection();
 
-            
-            
+            const { owner, accountAddress, accountName, accountDescription } = await req.json();
+
+            // Validate required fields
+            if (!owner || !accountAddress) {
+                return NextResponse.json({ error: 'Owner and accountAddress are required' }, { status: 400 });
+            }
+
+            // Find the wallet to update
+            const wallet = await Wallet.findOne({ owner, address: accountAddress });
+
+            if (!wallet) {
+                return NextResponse.json({ error: 'Wallet not found' }, { status: 404 });
+            }
+
+            // Update fields if provided
+            if (accountName) {
+                wallet.accountName = accountName;
+            }
+            if (accountDescription) {
+                wallet.accountDescription = accountDescription;
+            }
+
+            // Save the updated wallet
+            const updatedWallet = await wallet.save();
+
+            return NextResponse.json(updatedWallet, { status: 200 });
         } catch (error) {
-            console.error('Error updating wallet', error);
+            console.error('Error updating wallet:', error);
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
-
-    } else 
-    {
+    } else {
         return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
     }
 }
