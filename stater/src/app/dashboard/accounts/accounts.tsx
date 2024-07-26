@@ -1,5 +1,3 @@
-// components/AccountItem.tsx
-
 import React from 'react';
 
 interface AccountItemProps {

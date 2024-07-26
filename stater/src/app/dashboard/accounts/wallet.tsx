@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import Balances from './balances';
 
@@ -52,8 +52,9 @@ export default function Wallets() {
                 });                
 
                 if (response.ok) {
-                    const createdWallet = await response.json();
-                    console.log('Wallet created successfully:', createdWallet);
+                    
+                    
+
                 } else {
                     console.error('Failed to create wallet');
                 }

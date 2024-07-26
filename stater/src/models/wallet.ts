@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, models } from 'mongoose';
 
 // Define the schema for a crypto wallet with automatic timestamps
 const walletSchema = new Schema({
@@ -34,6 +34,6 @@ const walletSchema = new Schema({
 });
 
 // Create a model using the schema
-const Wallet = model('Wallet', walletSchema);
+const Wallet = models.Wallet || model('Wallet', walletSchema);
 
 export default Wallet;

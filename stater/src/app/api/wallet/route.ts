@@ -6,7 +6,7 @@ import connection from '@/lib/db';
 export async function POST(req: Request, res: NextResponse) {
     if (req.method === 'POST') {
         try {            
-            await connection(); // Ensure database connection
+            await connection();
 
             // Destructure the request body
             const data = await req.json();
@@ -37,11 +37,29 @@ export async function POST(req: Request, res: NextResponse) {
     }
 }
 
-/*export async function GET(req: Request, res: NextResponse) {
-    await connection();
+export async function GET(req: NextRequest) {
+    if (req.method === 'GET') {
+        try {
+            await connection();
 
-    //Querry database, specifaclly the wallets collection
-    //Get an array of every wallet with a matching ownerID to the passed ownerID
+            // Extract ownerID from headers
+            const ownerID = req.headers.get('ownerID') || '';
 
-    //return the array of wallets to the client
-}*/
+            // Validate ownerID
+            if (!ownerID) {
+                return NextResponse.json({ error: 'Missing ownerID' }, { status: 400 });
+            }
+
+            // Query the database for wallets with the provided ownerID
+            const wallets = await Wallet.find({ owner: ownerID });
+
+            return NextResponse.json(wallets, { status: 200 }); // Changed status code to 200 for successful retrieval
+
+        } catch (error) {
+            console.error('Error retrieving wallets:', error);
+            return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+    } else {
+        return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+    }
+}
