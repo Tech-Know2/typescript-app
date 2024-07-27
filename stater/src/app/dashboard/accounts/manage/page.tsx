@@ -158,14 +158,14 @@ export default function ManageAccount() {
         const value = event.target.value;
         setInputName(value.slice(0, MAX_NAME_LENGTH)); // Limit input length
         setNameCount(value.length); // Update character count
-        setNameValid(value.trim() !== '' && value.length < MAX_NAME_LENGTH); // Validation
+        setNameValid(value.trim() !== '' && value.length <= MAX_NAME_LENGTH); // Validation
     };
     
     const handleInputDescriptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const value = event.target.value;
         setInputDescription(value.slice(0, MAX_DESC_LENGTH)); // Limit input length
         setDescCount(value.length); // Update character count
-        setDescValid(value.trim() !== '' && value.length < MAX_DESC_LENGTH); // Validation
+        setDescValid(value.trim() !== '' && value.length <= MAX_DESC_LENGTH); // Validation
     };
     
 
@@ -200,11 +200,11 @@ export default function ManageAccount() {
             {isAuthenticated && wallet && (
                 <div className="flex">
                     <DashNavBar />
-                    <div className="flex-1 p-8 bg-gray-100 font-mono">
+                    <div className="flex-1 p-8 bg-gray-100">
                         <Link href="/dashboard/accounts" className="bg-gray-500 text-white font-bold px-3 py-2 rounded-md hover:bg-gray-600 shadow-md focus:outline-none focus:ring-2 focus:ring-gray-400 transition duration-300 ease-in-out">Back</Link>
                         <p className="text-xl mb-4 mt-5">{wallet.accountName}</p>
-                        <p className="text-md mb-4">{wallet.accountDescription}</p>
-                        <p className="text-md mb-4">{wallet.blockchain} Network</p>
+                        <p className="text-md mb-4">{wallet.blockchain} - {wallet.accountDescription}</p>
+                        <p className="text-md mb-4">{wallet.address}</p>
                         <p className="text-md mb-4">Current Balance: {wallet.balance.toFixed(2)}</p>
 
                         <div className="flex space-x-4 p-4">
@@ -234,7 +234,7 @@ export default function ManageAccount() {
             {isFormVisible && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white rounded-lg p-6 w-1/2 space-y-4">
-                        <h2 className="text-xl font-bold">Confirm Account Delete</h2>
+                        <h2 className="text-xl font-bold">Confirm Account Deletion</h2>
                         <h3 className="text-lg font-bold">This action will remove this account from our database, please export this wallet to another provider before completing this action</h3>
                         <p className="text-md mb-4">Please confirm the account name for deletion:</p>
                         <input

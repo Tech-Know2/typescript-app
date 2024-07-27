@@ -3,7 +3,7 @@ import { RegisterLink } from "@kinde-oss/kinde-auth-nextjs/components";
 
 export default function Prices() {
   return (
-    <main className="flex flex-col items-center p-6 space-y-6 font-mono mt-[0vw]">
+    <main className="flex flex-col items-center p-6 space-y-6 mt-[0vw]">
       <div className="w-[55vw] mb-[10vw]">
         <table className="w-full mb-8"> {/* Apply margin-bottom directly */}
           <thead>

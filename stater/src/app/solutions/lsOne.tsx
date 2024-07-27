@@ -2,7 +2,7 @@ import {RegisterLink} from "@kinde-oss/kinde-auth-nextjs/components";
 
 export default function LeftSol() {
     return (
-      <main className="flex px-[10vw] h-[350px] mt-[4vw] mb-[4vw] font-mono">
+      <main className="flex px-[10vw] h-[350px] mt-[4vw] mb-[4vw]">
         {/* Left Side: Content */}
         <div className="flex-1 p-8 mr-[2vw]">
           <h1 className="text-3xl font-bold mb-4">High Fidelity Data</h1>

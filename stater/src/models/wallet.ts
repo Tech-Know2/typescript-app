@@ -4,7 +4,7 @@ import { Schema, model, models } from 'mongoose';
 const walletSchema = new Schema({
   owner: {
     type: String,
-    required: true, // Ensure that each wallet has an owner
+    required: true,
   },
   accountName: {
     type: String,

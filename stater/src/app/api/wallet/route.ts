@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from 'next/server';
 import mongoose from 'mongoose';
 import Wallet from '@/models/wallet';
 import connection from '@/lib/db';
+import {v4 as UUID} from 'uuid';
 
 export async function POST(req: Request, res: NextResponse) {
     if (req.method === 'POST') {

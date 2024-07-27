@@ -3,7 +3,7 @@ import {RegisterLink} from "@kinde-oss/kinde-auth-nextjs/components";
 
 export default function Hero() {
   return (
-    <main className="py-60 font-mono">
+    <main className="py-60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 className="text-5xl font-bold text-black mb-4">Own your Money, Own Your Future</h1>
         <h2 className="text-2xl text-gray-700 mb-8">Take control of your finances with Stater</h2>

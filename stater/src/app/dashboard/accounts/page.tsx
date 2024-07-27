@@ -65,7 +65,7 @@ export default function Accounts() {
             <DashNavBar />
 
             {/* Main Content Area */}
-            <div className="flex-1 p-8 bg-gray-100 font-mono">
+            <div className="flex-1 p-8 bg-gray-100">
                 {/* Giant Header/Welcome Text */}
                 <h1 className="text-3xl font-bold mb-8">Your Accounts</h1>
                 <Ribon totalSum={totalSum} accountCount={accountCount} />

@@ -90,7 +90,7 @@ export default function Wallets({ wallets }: BalanceProps) {
     };
 
     return (
-        <div className="flex h-[60vh] font-mono">
+        <div className="flex h-[60vh]">
             <div 
                 className="absolute left-1/2 transform -translate-x-1/2 space-y-2"
                 style={{ top: '30%' }}

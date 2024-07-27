@@ -30,7 +30,7 @@ const AccountItem: React.FC<AccountItemProps> = ({ index, account }) => {
         </div>
       </div>
       <div className="flex space-x-4 items-center">
-        <span className="font-mono">{account.balance.toFixed(2)}</span>
+        <span className="">{account.balance.toFixed(2)}</span>
         <button
           onClick={handleManageClick}
           className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md"

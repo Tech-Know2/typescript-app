@@ -2,7 +2,7 @@ import {RegisterLink} from "@kinde-oss/kinde-auth-nextjs/components";
 
 export default function RightSol() {
     return (
-      <main className="flex px-[10vw] h-[350px] mt-[4vw] mb-[4vw] font-mono">
+      <main className="flex px-[10vw] h-[350px] mt-[4vw] mb-[4vw] ">
         {/* Left Side: Graphic or SVG */}
         <div className="flex-shrink-0 w-[30vw] bg-gray-200 mr-[2vw]">
           {/* Placeholder for SVG or graphic */}

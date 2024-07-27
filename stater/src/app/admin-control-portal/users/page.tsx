@@ -1,9 +1,9 @@
 import React from 'react';
-import DashNavBar from './dashNavBar';
+import DashNavBar from '../dashNavBar';
 import {getKindeServerSession} from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from 'next/navigation';
 
-export default async function AdminDashboard() {
+export default async function UserData() {
     //const {getUser} = getKindeServerSession();
     //const user = await getUser();
 
