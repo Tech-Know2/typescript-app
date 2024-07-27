@@ -1,5 +1,5 @@
 export interface TicketType {
-    _id: string;
+    ticketIndex: number;
     userID: string;
     questionHeader: string;
     questionText: string;
@@ -8,18 +8,16 @@ export interface TicketType {
     responseText: string;
     responseStatus: ResponseStatus;
     assistanceRating: AssistanceRating;
-    createdAt?: string;
-    updatedAt?: string;
 }
 
 export enum SubjectMatter {
+    Other = 'Other',
     Accounts = 'Accounts',
     Transactions = 'Transactions',
     Minting = 'Minting',
     Ramping = 'Ramping',
     Research = 'Research',
     Cards = 'Cards',
-    Other = 'Other',
     AssetManagement = 'Asset Management',
 }
 

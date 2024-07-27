@@ -1,6 +1,10 @@
 import { Schema, model, models } from 'mongoose';
 
 const ticketSchema = new Schema({
+    ticketIndex: { 
+        type:Number,
+        required: true,
+    },
     userID: {
         type: String,
         required: true,
@@ -16,7 +20,7 @@ const ticketSchema = new Schema({
     subjectMatter: {
         type: String,
         required: true,
-        enum: ['Accounts', 'Transactions', 'Minting', 'Ramping', 'Research', 'Cards', 'Other', 'Asset Management'],
+        enum: ['Other', 'Accounts', 'Transactions', 'Minting', 'Ramping', 'Research', 'Cards', 'Asset Management'],
     },
     responderUserID: {
         type: String,
@@ -36,13 +40,12 @@ const ticketSchema = new Schema({
         type: String,
         required: true,
         enum: ['Satisifed', 'Neutral', 'Disappointed', 'Unsatisfied', 'Outraged'],
-        default: 'Neutral',
     },
     }, {
     timestamps: true, // Automatically adds createdAt and updatedAt fields
 });
 
 // Create a model using the schema
-const Ticket = models.Ticket || model('Transaction', ticketSchema);
+const Ticket = models.Ticket || model('Ticket', ticketSchema);
 
 export default Ticket;

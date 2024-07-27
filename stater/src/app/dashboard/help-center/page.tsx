@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from 'react';
 import DashNavBar from '../dashNavBar';
@@ -7,21 +7,65 @@ import { ClipLoader } from 'react-spinners';
 import TicketItem from './ticket';
 import { TicketType } from '../../../types/ticketType';
 import TicketRibon from './ticketRibon';
+import TicketForm from './ticketForm';
 
 export default function HelpCenter() {
-    const { user, isAuthenticated } = useKindeBrowserClient();  
+    const { user, isAuthenticated } = useKindeBrowserClient();
     const [tickets, setTickets] = useState<TicketType[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
+    const [isFormVisible, setFormVisible] = useState(false);
+
+    const fetchTickets = async () => {
+        if (isAuthenticated) {
+            try {
+                const response = await fetch(`/api/tickets?userID=${user?.id || ''}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                const data = await response.json();
+                setTickets(data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Failed to fetch tickets', error);
+                setLoading(false);
+            }
+        }
+    };
 
     useEffect(() => {
-        if (isAuthenticated) {
-            // Fetch tickets here and set them to state
-            // Example: fetchTickets().then(data => { setTickets(data); setLoading(false); });
-            setLoading(false); // Remove this when fetching tickets
-        }
+        fetchTickets();
     }, [isAuthenticated]);
+
+    const toggleFormVisibility = () => {
+        setFormVisible(!isFormVisible);
+    };
+
+    const handleSubmitTicket = async (newTicket: TicketType) => {
+        try {
+            const response = await fetch('/api/tickets', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newTicket),
+            });
+
+            if (response.ok) {
+                const ticket = await response.json();
+                setTickets(prevTickets => [ticket, ...prevTickets]);
+                toggleFormVisibility();
+            } else {
+                console.error('Failed to create ticket');
+            }
+        } catch (error) {
+            console.error('Error creating ticket:', error);
+        }
+    };
 
     if (loading) {
         return (
@@ -38,24 +82,36 @@ export default function HelpCenter() {
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
     const currentTickets = tickets.slice(indexOfFirstItem, indexOfLastItem);
-
     const totalPages = Math.ceil(tickets.length / itemsPerPage);
 
     return (
         <div className="flex">
             <DashNavBar />
 
-            <div className="flex-1 p-8 bg-gray-100 font-mono">
-                <h1 className="text-4xl font-bold mb-8">How can we help you today, {user?.given_name}?</h1>
+            <div className="flex-1 p-8 bg-gray-100">
+                <h1 className="text-4xl font-bold mb-8">How can we help you, {user?.given_name}?</h1>
 
                 <TicketRibon ticketSum={5} unAnswered={2} unOpened={1} />
+
+                <button
+                    onClick={toggleFormVisibility}
+                    className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md mb-4 mt-4"
+                >
+                    Create Ticket
+                </button>
+
+                <TicketForm
+                    isFormVisible={isFormVisible}
+                    toggleFormVisibility={toggleFormVisibility}
+                    onSubmit={handleSubmitTicket}
+                />
 
                 <div className="space-y-4">
                     {currentTickets.length > 0 ? (
                         <>
                             {currentTickets.map((ticket) => (
                                 <TicketItem
-                                    key={ticket._id}
+                                    key={ticket.ticketIndex}
                                     ticket={ticket}
                                 />
                             ))}
