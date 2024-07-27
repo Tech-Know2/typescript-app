@@ -59,6 +59,12 @@ export async function POST(req: Request, res: NextResponse) {
     }
 }
 
+/*export async function DELETE(req: Request, res: NextResponse) {
+    if (req.method === 'DELETE') {
+
+    }
+}*/
+
 export async function GET(req: Request, res: NextResponse) {
     if (req.method === 'GET') {
         try {

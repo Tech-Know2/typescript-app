@@ -20,30 +20,6 @@ const TicketForm: React.FC<TicketFormProps> = ({ isFormVisible, toggleFormVisibi
     const [isFormValid, setFormValid] = useState(false);
     const [ticketIndex, setTicketIndex] = useState<number>(0);
 
-    /*useEffect(() => {
-        // Fetch existing tickets and set ticketIndex
-        const fetchTickets = async () => {
-            if (isAuthenticated) {
-                try {
-                    const response = await fetch(`/api/tickets?userID=${user?.id || ''}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-    
-                    const tickets = await response.json();
-                    setTicketIndex(tickets.length + 1);
-
-                } catch (error) {
-                    console.error('Failed to fetch tickets', error);
-                }
-            }
-        };
-
-        fetchTickets();
-    }, []); */
-
     const handleSubjectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedSubject(event.target.value as SubjectMatter);
     };
