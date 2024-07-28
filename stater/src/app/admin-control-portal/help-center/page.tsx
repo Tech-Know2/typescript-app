@@ -4,10 +4,8 @@ import React, { useEffect, useState } from 'react';
 import DashNavBar from '../dashNavBar';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { ClipLoader } from 'react-spinners';
-import TicketItem from './ticket';
 import { TicketType } from '../../../types/ticketType';
-import TicketRibon from './ticketRibon';
-import TicketForm from './ticketForm';
+import TicketDisplay from './ticket';
 
 export default function HelpCenter() {
     const { user, isAuthenticated } = useKindeBrowserClient();
@@ -15,12 +13,11 @@ export default function HelpCenter() {
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
-    const [isFormVisible, setFormVisible] = useState(false);
 
     const fetchTickets = async () => {
         if (isAuthenticated) {
             try {
-                const response = await fetch(`/api/tickets?userID=${user?.id || ''}`, {
+                const response = await fetch(`/api/tickets?userID=${''}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
@@ -41,39 +38,13 @@ export default function HelpCenter() {
         fetchTickets();
     }, [isAuthenticated]);
 
-    const toggleFormVisibility = () => {
-        setFormVisible(!isFormVisible);
-    };
-
-    const handleSubmitTicket = async (newTicket: TicketType) => {
-        try {
-            const response = await fetch('/api/tickets', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(newTicket),
-            });
-
-            if (response.ok) {
-                const ticket = await response.json();
-                setTickets(prevTickets => [ticket, ...prevTickets]);
-                toggleFormVisibility();
-            } else {
-                console.error('Failed to create ticket');
-            }
-        } catch (error) {
-            console.error('Error creating ticket:', error);
-        }
-    };
-
     if (loading) {
         return (
             <div className="flex h-screen">
                 <DashNavBar />
                 <div className="flex flex-1 flex-col items-center justify-center bg-gray-100">
                     <ClipLoader size={50} color={"#123abc"} loading={loading} />
-                    <p className="mt-4 text-lg font-medium">Loading your tickets, please wait...</p>
+                    <p className="mt-4 text-lg font-medium">Loading unanswered tickets</p>
                 </div>
             </div>
         );
@@ -89,28 +60,13 @@ export default function HelpCenter() {
             <DashNavBar />
 
             <div className="flex-1 p-8 bg-gray-100">
-                <h1 className="text-4xl font-bold mb-8">How can we help you, {user?.given_name}?</h1>
+                <h1 className="text-4xl font-bold mb-8">Unanswered Tickets</h1>
 
-                <TicketRibon ticketSum={5} unAnswered={2} unOpened={1} />
-
-                <button
-                    onClick={toggleFormVisibility}
-                    className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md mb-4 mt-4"
-                >
-                    Create Ticket
-                </button>
-
-                <TicketForm
-                    isFormVisible={isFormVisible}
-                    toggleFormVisibility={toggleFormVisibility}
-                    onSubmit={handleSubmitTicket}
-                />
-
-                <div className="space-y-4 w-[80vw]">
+                <div className="space-y-4 w-[80vw] mt-[2vw]">
                     {currentTickets.length > 0 ? (
                         <>
                             {currentTickets.map((ticket) => (
-                                <TicketItem
+                                <TicketDisplay
                                     key={ticket.ticketIndex}
                                     ticket={ticket}
                                 />

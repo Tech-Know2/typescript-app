@@ -13,12 +13,12 @@ export interface TicketType {
 export enum SubjectMatter {
     Other = 'Other',
     Accounts = 'Accounts',
-    Transactions = 'Transactions',
+    Transfers = 'Transfers',
     Minting = 'Minting',
     Ramping = 'Ramping',
-    Research = 'Research',
-    Cards = 'Cards',
-    AssetManagement = 'Asset Management',
+    MoneyGram = 'MoneyGram',
+    Investments = 'Investments',
+    Connections = 'Connections',
 }
 
 export enum ResponseStatus {

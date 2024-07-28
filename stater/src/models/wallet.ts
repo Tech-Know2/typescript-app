@@ -14,11 +14,11 @@ const walletSchema = new Schema({
     type: String,
     required: true,
   },
-  blockchain: {
+  accountType: {
     type: String,
     required: true,
-    enum: ['Bitcoin', 'Solana', 'Ethereum', 'Stellar', 'Polygon', 'Optimism'],
-    default: 'Stellar',
+    enum: ['Checkings', 'Savings', 'Investments'],
+    default: 'Checkings',
   },
   address: {
     type: String,

@@ -71,17 +71,16 @@ export async function GET(req: Request, res: NextResponse) {
             await connection();
 
             const url = new URL(req.url);
-            const userID = url.searchParams.get('userID') || '';
+            const userID = url.searchParams.get('userID');
 
-            // Validate userID
-            if (!userID) {
-                return NextResponse.json({ error: 'Missing userID' }, { status: 400 });
+            let tickets;
+            if (userID) {
+                tickets = await Ticket.find({ userID });
+            } else {
+                tickets = await Ticket.find({});
             }
 
-            // Fix the query here
-            const tickets = await Ticket.find({ userID });
-
-            return NextResponse.json(tickets);
+            return NextResponse.json(tickets, { status: 200 });
         } catch (error) {
             console.error('Error fetching tickets:', error);
             return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

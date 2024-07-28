@@ -55,7 +55,7 @@ export default function Wallets({ wallets }: BalanceProps) {
                 owner: user?.id,
                 accountName,
                 accountDescription,
-                blockchain: selectedOption,
+                accountType: selectedOption,
             };
 
             try {
@@ -156,13 +156,10 @@ export default function Wallets({ wallets }: BalanceProps) {
                             onChange={handleSelectChange}
                             className="border border-black rounded-md p-2 w-full"
                         >
-                            <option value="" disabled>Select a Network</option>
-                            <option value="Stellar">Stellar</option>
-                            <option value="Bitcoin">Bitcoin</option>
-                            <option value="Ethereum">Ethereum</option>
-                            <option value="Solana">Solana</option>
-                            <option value="Polygon">Polygon</option>
-                            <option value="Optimism">Optimism</option>
+                            <option value="" disabled>Select Account Type</option>
+                            <option value="Checkings">Checkings</option>
+                            <option value="Savings">Savings</option>
+                            <option value="Investments">Investments</option>
                         </select>
                         
                         <div className="flex justify-end space-x-2">

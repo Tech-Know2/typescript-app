@@ -11,10 +11,10 @@ export async function POST(req: Request, res: NextResponse) {
 
             // Destructure the request body
             const data = await req.json();
-            const { owner, accountName, accountDescription, blockchain } = data;
+            const { owner, accountName, accountDescription, accountType } = data;
 
             // Validate required fields
-            if (!owner || !accountName || !accountDescription || !blockchain) {
+            if (!owner || !accountName || !accountDescription || !accountType) {
                 return NextResponse.json({ error: 'Missing Required Fields' }, { status: 400 })
             }
 
@@ -22,8 +22,8 @@ export async function POST(req: Request, res: NextResponse) {
                 owner,
                 accountName,
                 accountDescription,
-                blockchain,
-                address: accountName + blockchain,  // Temporary thing to assign unique values for the addresses
+                accountType,
+                address: accountName + accountType,  // Temporary thing to assign unique values for the addresses
                 balance: 0,       // Default balance
             });
 

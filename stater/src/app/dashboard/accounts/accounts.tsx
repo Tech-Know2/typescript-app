@@ -26,7 +26,7 @@ const AccountItem: React.FC<AccountItemProps> = ({ index, account }) => {
         <span className="font-bold">{index + 1}.</span>
         <div>
           <p className="font-semibold">{account.accountName}</p>
-          <p className="text-gray-500">{account.blockchain}</p>
+          <p className="text-gray-500">{account.accountType}</p>
         </div>
       </div>
       <div className="flex space-x-4 items-center">

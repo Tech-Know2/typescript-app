@@ -16,12 +16,12 @@ const DashNavBar = () => {
       <nav className="space-y-3 flex-1 overflow-y-auto">
         <Link href="/admin-control-panel" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Admin Dashboard</Link>
         <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">User Analytics</Link>
-        <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Asset Managment</Link>
-        <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Account Managment</Link>
+        <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Assets</Link>
+        <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Accounts</Link>
         <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Trade Analytics</Link>
         <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Integration Managment</Link>
         <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Billing and Subscriptions</Link>
-        <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Help Center</Link>
+        <Link href="/admin-control-portal/help-center" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Help Center</Link>
         <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Security & Reports</Link>
         <Link href="/dashboard" className="block px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-700 hover:text-white">Client Portal</Link>
       </nav>

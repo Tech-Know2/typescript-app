@@ -20,7 +20,7 @@ const ticketSchema = new Schema({
     subjectMatter: {
         type: String,
         required: true,
-        enum: ['Other', 'Accounts', 'Transactions', 'Minting', 'Ramping', 'Research', 'Cards', 'Asset Management'],
+        enum: ['Other', 'Accounts', 'Transfers', 'Minting', 'Ramping', 'MoneyGram', 'Investments', 'Connections'],
     },
     responderUserID: {
         type: String,
