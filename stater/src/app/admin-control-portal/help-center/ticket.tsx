@@ -20,7 +20,7 @@ const TicketDisplay: React.FC<TicketProps> = ({ ticket }) => {
             <div className="flex flex-row bg-white rounded-md shadow-md p-4 items-center justify-between">
                 <div className='flex flex-col'>
                     <p className="font-bold text-lg">{ticket.questionHeader}</p> {/* Question Header */}
-                    <p>Status: {ticket.responseStatus}</p> {/* Question Status */}
+                    <p>Subject: {ticket.subjectMatter}</p> {/* Question Status */}
                 </div>
                 <div className="flex space-x-4">
                     <button 

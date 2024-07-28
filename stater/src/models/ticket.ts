@@ -1,4 +1,5 @@
 import { Schema, model, models } from 'mongoose';
+import { TicketType } from '@/types/ticketType';
 
 const ticketSchema = new Schema({
     ticketIndex: { 

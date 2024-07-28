@@ -12,7 +12,7 @@ export default function HelpCenter() {
     const [tickets, setTickets] = useState<TicketType[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 4;
+    const itemsPerPage = 6;
 
     const fetchTickets = async () => {
         if (isAuthenticated) {

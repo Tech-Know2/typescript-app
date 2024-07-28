@@ -61,13 +61,21 @@ const TicketForm: React.FC<TicketFormProps> = ({ isFormVisible, toggleFormVisibi
                     questionHeader,
                     questionText,
                     subjectMatter: selectedSubject,
-                    responderUserID: "Response will go here",
-                    responseText: "Responder's ID will go here",
+                    responderUserID: " ",
+                    responseText: " ",
                     responseStatus: ResponseStatus.Unanswered,
                     assistanceRating: AssistanceRating.Neutral,
                 };
 
                 onSubmit(newTicket);
+
+                //After submitting clear inputted text, and return form to normal
+                setSelectedSubject(SubjectMatter.Other);
+                setQuestionHeader("");
+                setQuestionText("");
+                setFormValid(false);
+                toggleFormVisibility();
+
             } catch (error) {
                 console.error('Failed to fetch tickets', error);
             }

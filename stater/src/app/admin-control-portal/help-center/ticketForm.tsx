@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from 'react';
-import { TicketType } from '../../../types/ticketType';
+import React, { useState, useEffect } from 'react';
+import { AssistanceRating, ResponseStatus, TicketType } from '../../../types/ticketType';
+import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 
 interface AnswerFormProps {
     ticket: TicketType;
@@ -11,10 +12,41 @@ interface AnswerFormProps {
 
 const TicketForm: React.FC<AnswerFormProps> = ({ ticket, toggleFormVisibility, onSubmit }) => {
     const [responseText, setResponseText] = useState(ticket.responseText || '');
+    const { user, isAuthenticated } = useKindeBrowserClient();
 
-    const handleSubmit = (event: React.FormEvent) => {
+    const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-        onSubmit({ ...ticket, responseText });
+        if (isAuthenticated) {
+            try {
+                const newTicket: TicketType = {
+                    ...ticket,
+                    responderUserID: user?.id as string,
+                    responseText: responseText,
+                    responseStatus: ResponseStatus.Answered,
+                    assistanceRating: AssistanceRating.Neutral,
+                };
+
+                const response = await fetch(`/api/tickets?userID=${ticket.userID}&ticketIndex=${ticket.ticketIndex}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(newTicket),
+                });
+
+                if (response.ok) {
+                    // Call onSubmit to update the parent component state
+                    onSubmit(newTicket);
+                    // Clear the response text and close the form
+                    setResponseText("");
+                    toggleFormVisibility();
+                } else {
+                    console.error('Error updating ticket:', await response.json());
+                }
+            } catch (error) {
+                console.error('Error updating ticket:', error);
+            }
+        }
     };
 
     return (
@@ -22,11 +54,9 @@ const TicketForm: React.FC<AnswerFormProps> = ({ ticket, toggleFormVisibility, o
             <div className="bg-white rounded-lg p-6 w-1/2 space-y-4">
                 <h2 className="text-xl font-bold">Answer Ticket</h2>
                 <div className='flex flex-col'>
-                    <div className='flex flex-row'>
-                        <h1>{ticket.questionHeader}</h1>
-                        <h2> - {ticket.subjectMatter}</h2>
-                    </div>
-                    <h2>User's Question</h2>
+                    <h1>{ticket.questionHeader}</h1>
+                    <h2>{ticket.subjectMatter}</h2>
+                    <h2 className='underline'>User's Question</h2>
                     <p>{ticket.questionText}</p>
                 </div>
                 <form onSubmit={handleSubmit}>
@@ -49,13 +79,13 @@ const TicketForm: React.FC<AnswerFormProps> = ({ ticket, toggleFormVisibility, o
                             type="submit" 
                             className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md"
                         >
-                            Submit
+                            Reply
                         </button>
                     </div>
                 </form>
             </div>
         </div>
     );
-}
+};
 
 export default TicketForm;

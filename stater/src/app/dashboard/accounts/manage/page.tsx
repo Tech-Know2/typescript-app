@@ -203,7 +203,7 @@ export default function ManageAccount() {
                     <div className="flex-1 p-8 bg-gray-100">
                         <Link href="/dashboard/accounts" className="bg-gray-500 text-white font-bold px-3 py-2 rounded-md hover:bg-gray-600 shadow-md focus:outline-none focus:ring-2 focus:ring-gray-400 transition duration-300 ease-in-out">Back</Link>
                         <p className="text-xl mb-4 mt-5">{wallet.accountName}</p>
-                        <p className="text-md mb-4">{wallet.blockchain} - {wallet.accountDescription}</p>
+                        <p className="text-md mb-4">{wallet.accountType} - {wallet.accountDescription}</p>
                         <p className="text-md mb-4">{wallet.address}</p>
                         <p className="text-md mb-4">Current Balance: {wallet.balance.toFixed(2)}</p>
 
