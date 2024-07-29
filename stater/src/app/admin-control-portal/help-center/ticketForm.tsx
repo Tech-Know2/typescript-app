@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { AssistanceRating, ResponseStatus, TicketType } from '../../../types/ticketType';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import { UserType } from '@/types/userType';
 
 interface AnswerFormProps {
     ticket: TicketType;
@@ -13,35 +14,49 @@ interface AnswerFormProps {
 const TicketForm: React.FC<AnswerFormProps> = ({ ticket, toggleFormVisibility, onSubmit }) => {
     const [responseText, setResponseText] = useState(ticket.responseText || '');
     const { user, isAuthenticated } = useKindeBrowserClient();
+    const [currentUser, setCurrentUser] = useState<UserType | null>(null);
 
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         if (isAuthenticated) {
             try {
-                const newTicket: TicketType = {
-                    ...ticket,
-                    responderUserID: user?.id as string,
-                    responseText: responseText,
-                    responseStatus: ResponseStatus.Answered,
-                    assistanceRating: AssistanceRating.Neutral,
-                };
-
-                const response = await fetch(`/api/tickets?userID=${ticket.userID}&ticketIndex=${ticket.ticketIndex}`, {
-                    method: 'PATCH',
+                const res = await fetch(`/api/user?kindeID=${user?.id}`, {
+                    method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(newTicket),
                 });
 
-                if (response.ok) {
-                    // Call onSubmit to update the parent component state
-                    onSubmit(newTicket);
-                    // Clear the response text and close the form
-                    setResponseText("");
-                    toggleFormVisibility();
-                } else {
-                    console.error('Error updating ticket:', await response.json());
+                const fetchedUser: UserType = await res.json();
+                setCurrentUser(fetchedUser);
+
+                if(currentUser != null)
+                {
+                    const reply: TicketType = {
+                        ...ticket,
+                        adminUser: currentUser._id,
+                        responseText: responseText,
+                        responseStatus: ResponseStatus.Answered,
+                        assistanceRating: AssistanceRating.Neutral,
+                    };
+    
+                    const response = await fetch(`/api/tickets?clientID=${ticket.clientUser._id}&ticketIndex=${ticket.ticketIndex}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(reply),
+                    });
+    
+                    if (response.ok) {
+                        // Call onSubmit to update the parent component state
+                        onSubmit(reply);
+                        // Clear the response text and close the form
+                        setResponseText("");
+                        toggleFormVisibility();
+                    } else {
+                        console.error('Error updating ticket:', await response.json());
+                    }
                 }
             } catch (error) {
                 console.error('Error updating ticket:', error);

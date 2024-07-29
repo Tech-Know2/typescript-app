@@ -3,6 +3,8 @@ import mongoose from 'mongoose';
 import Ticket from '../../../models/ticket'
 import { TicketType } from '../../../types/ticketType';
 import connection from '../../../lib/db'
+import User from '@/models/user';
+import { ObjectId } from 'mongodb';
 
 export async function POST(req: Request, res: NextResponse) {
     if (req.method === 'POST') {
@@ -11,16 +13,18 @@ export async function POST(req: Request, res: NextResponse) {
 
             // Destructure the request body
             const data = await req.json();
-            const { ticketIndex, userID, questionHeader, questionText, subjectMatter, responderUserID, responseText, responseStatus, assistanceRating } = data;
+            const { ticketIndex, clientUser, questionHeader, questionText, subjectMatter, responseText, responseStatus, assistanceRating } = data;
+
+            console.log(data);
 
             // Detailed validation
             if (ticketIndex === undefined || ticketIndex === null) {
                 console.log('Missing ticketIndex');
                 return NextResponse.json({ error: 'Missing ticketIndex' }, { status: 400 });
             }
-            if (!userID) {
-                console.log('Missing userID');
-                return NextResponse.json({ error: 'Missing userID' }, { status: 400 });
+            if (!clientUser) {
+                console.log('Missing clientUser');
+                return NextResponse.json({ error: 'Missing clientUser' }, { status: 400 });
             }
             if (!questionHeader) {
                 console.log('Missing questionHeader');
@@ -35,13 +39,19 @@ export async function POST(req: Request, res: NextResponse) {
                 return NextResponse.json({ error: 'Missing subjectMatter' }, { status: 400 });
             }
 
+            const user = await User.findById(clientUser);
+
+            if (!user) {
+                console.log('User not found');
+                return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            }
+
             const newTicket = new Ticket({
                 ticketIndex,
-                userID,
+                clientUser: user,
                 questionHeader,
                 questionText,
                 subjectMatter,
-                responderUserID,
                 responseText,
                 responseStatus,
                 assistanceRating,
@@ -99,16 +109,18 @@ export async function PATCH(req: Request, res: NextResponse) {
             await connection();
 
             const url = new URL(req.url);
-            const userID = url.searchParams.get('userID');
+            const clientID = url.searchParams.get('clientID');
             const ticketIndex = url.searchParams.get('ticketIndex');
 
             const data = await req.json();
 
-            const {responderUserID, responseText, responseStatus} = data;
+            const {adminUser, responseText, responseStatus} = data;
 
-            const ticket = await Ticket.findOne({ userID: userID, ticketIndex: ticketIndex });
+            const ticket = await Ticket.findOne({ clientID: clientID, ticketIndex: ticketIndex });
 
-            ticket.responderUserID = responderUserID;
+            const admin = await User.findById(adminUser);
+
+            ticket.adminUser = admin;
             ticket.responseText = responseText;
             ticket.responseStatus = responseStatus;
 

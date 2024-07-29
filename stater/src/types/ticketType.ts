@@ -6,10 +6,10 @@ export interface TicketType {
     questionHeader: string;
     questionText: string;
     subjectMatter: SubjectMatter;
-    adminUser: UserType;
-    responseText: string;
-    responseStatus: ResponseStatus;
-    assistanceRating: AssistanceRating;
+    adminUser?: UserType;
+    responseText?: string;
+    responseStatus?: ResponseStatus;
+    assistanceRating?: AssistanceRating;
 }
 
 export enum SubjectMatter {

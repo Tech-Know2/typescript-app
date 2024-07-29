@@ -8,6 +8,7 @@ import TicketItem from './ticket';
 import { TicketType, ResponseStatus } from '../../../types/ticketType';
 import TicketRibon from './ticketRibon';
 import TicketForm from './ticketForm';
+import { UserType } from '@/types/userType';
 
 export default function HelpCenter() {
     const { user, isAuthenticated } = useKindeBrowserClient();
@@ -19,35 +20,89 @@ export default function HelpCenter() {
     const [ticketSum, setTicketSum] = useState(0);
     const [unAnswered, setUnAnswered] = useState(0);
     const [answered, setAnswered] = useState(0);
+    const [error, setError] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<UserType | null>(null);
 
     const fetchTickets = async () => {
-        if (isAuthenticated) {
+        if (isAuthenticated && user) {
             try {
-                const response = await fetch(`/api/tickets?userID=${user?.id || ''}`, {
+                // Fetch user data
+                const response = await fetch(`/api/user?kindeID=${user?.id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                 });
-
-                const data = await response.json();
-                setTickets(data);
-
-                const totalTickets = data.length;
-                const unansweredTickets = data.filter((ticket: TicketType) => ticket.responseStatus === ResponseStatus.Unanswered).length;
-                const answeredTickets = data.filter((ticket: TicketType) => ticket.responseStatus === ResponseStatus.Answered).length;
-
-                setTicketSum(totalTickets);
-                setUnAnswered(unansweredTickets);
-                setAnswered(answeredTickets);
-
-                setLoading(false);
+    
+                if (response.ok) {
+                    const fetchedUser: UserType = await response.json();
+                    setCurrentUser(fetchedUser);
+    
+                    // Fetch tickets data for the current user
+                    const ticketResponse = await fetch(`/api/tickets?userID=${fetchedUser._id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+    
+                    if (ticketResponse.ok) {
+                        const data = await ticketResponse.json();
+    
+                        if (data.length !== 0) {
+                            setTickets(data);
+    
+                            const totalTickets = data.length;
+                            const unansweredTickets = data.filter((ticket: TicketType) => ticket.responseStatus === ResponseStatus.Unanswered).length;
+                            const answeredTickets = data.filter((ticket: TicketType) => ticket.responseStatus === ResponseStatus.Answered).length;
+    
+                            setTicketSum(totalTickets);
+                            setUnAnswered(unansweredTickets);
+                            setAnswered(answeredTickets);
+                        }
+    
+                        setLoading(false);
+                    } else {
+                        setError('Failed to retrieve ticket data.');
+                    }
+                } else if (response.status === 404) {
+                    // Create a new user if not found
+                    const newUser: UserType = {
+                        kindeID: user.id,
+                        accountName: `${user.given_name ?? ''} ${user.family_name ?? ''}`.trim(),
+                        accountEmail: user.email as string,
+                        wallets: [],
+                    };
+    
+                    const createResponse = await fetch('/api/user', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(newUser),
+                    });
+    
+                    if (createResponse.ok) {
+                        const createdUser: UserType = await createResponse.json();
+                        setCurrentUser(createdUser);
+    
+                        setTicketSum(0);
+                        setUnAnswered(0);
+                        setAnswered(0);
+                    } else {
+                        setError('Failed to create user.');
+                    }
+                } else {
+                    setError('Failed to retrieve user data.');
+                }
             } catch (error) {
-                console.error('Failed to fetch tickets', error);
+                console.error('Error finding or creating user:', error);
+                setError('An error occurred while fetching or creating user data.');
+            } finally {
                 setLoading(false);
             }
         }
-    };
+    };    
 
     useEffect(() => {
         fetchTickets();
@@ -97,6 +152,17 @@ export default function HelpCenter() {
     const currentTickets = tickets.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(tickets.length / itemsPerPage);
 
+    if (!currentUser) {
+        return (
+            <div className="flex h-screen">
+                <DashNavBar />
+                <div className="flex flex-1 flex-col items-center justify-center bg-gray-100">
+                    <p className="mt-4 text-lg font-medium text-red-600">User data is not available.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex">
             <DashNavBar />
@@ -117,6 +183,7 @@ export default function HelpCenter() {
                     isFormVisible={isFormVisible}
                     toggleFormVisibility={toggleFormVisibility}
                     onSubmit={handleSubmitTicket}
+                    currentUser={currentUser}
                 />
 
                 <div className="space-y-4 w-[80vw]">

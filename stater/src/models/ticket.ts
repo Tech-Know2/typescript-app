@@ -27,21 +27,21 @@ const ticketSchema = new Schema({
     adminUser: {
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true,
+        required: false,
     },
     responseText: {
         type: String,
-        required: true,
+        required: false,
     },
     responseStatus: {
         type: String,
-        required: true,
+        required: false,
         enum: ['Answered', 'Unanswered'],
         default: 'Unanswered',
     },
     assistanceRating: {
         type: String,
-        required: true,
+        required: false,
         enum: ['Satisifed', 'Neutral', 'Disappointed', 'Unsatisfied', 'Outraged'],
     },
     }, {

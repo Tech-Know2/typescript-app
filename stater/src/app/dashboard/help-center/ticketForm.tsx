@@ -1,18 +1,16 @@
-"use client";
-
 import React, { useState, useEffect } from 'react';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
-import { TicketType, SubjectMatter } from '../../../types/ticketType';
-import { ResponseStatus } from '../../../types/ticketType';
-import { AssistanceRating } from '../../../types/ticketType';
+import { TicketType, SubjectMatter, ResponseStatus, AssistanceRating } from '../../../types/ticketType';
+import { UserType } from '@/types/userType';
 
 interface TicketFormProps {
     isFormVisible: boolean;
     toggleFormVisibility: () => void;
     onSubmit: (ticket: TicketType) => void;
+    currentUser: UserType;
 }
 
-const TicketForm: React.FC<TicketFormProps> = ({ isFormVisible, toggleFormVisibility, onSubmit }) => {
+const TicketForm: React.FC<TicketFormProps> = ({ isFormVisible, toggleFormVisibility, onSubmit, currentUser }) => {
     const { user, isAuthenticated } = useKindeBrowserClient();
     const [selectedSubject, setSelectedSubject] = useState<SubjectMatter>(SubjectMatter.Other);
     const [questionHeader, setQuestionHeader] = useState("");
@@ -57,19 +55,18 @@ const TicketForm: React.FC<TicketFormProps> = ({ isFormVisible, toggleFormVisibi
                 // Create the new ticket with the updated ticketIndex
                 const newTicket: TicketType = {
                     ticketIndex: currentTicketCount + 1, // Set ticketIndex to the current count + 1
-                    userID: user?.id ?? "",
+                    clientUser: currentUser._id,
                     questionHeader,
                     questionText,
                     subjectMatter: selectedSubject,
-                    responderUserID: " ",
-                    responseText: " ",
+                    responseText: "",
                     responseStatus: ResponseStatus.Unanswered,
                     assistanceRating: AssistanceRating.Neutral,
                 };
 
                 onSubmit(newTicket);
 
-                //After submitting clear inputted text, and return form to normal
+                // After submitting clear inputted text, and return form to normal
                 setSelectedSubject(SubjectMatter.Other);
                 setQuestionHeader("");
                 setQuestionText("");
