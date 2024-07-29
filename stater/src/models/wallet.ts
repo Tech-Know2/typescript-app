@@ -2,8 +2,9 @@ import { Schema, model, models } from 'mongoose';
 
 // Define the schema for a crypto wallet with automatic timestamps
 const walletSchema = new Schema({
-  owner: {
-    type: String,
+  user: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
   },
   accountName: {
@@ -29,6 +30,11 @@ const walletSchema = new Schema({
     type: Number,
     default: 0,
   },
+  authUsers: [{
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  }],
 }, {
   timestamps: true, // Automatically adds createdAt and updatedAt fields
 });

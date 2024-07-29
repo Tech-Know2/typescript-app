@@ -30,9 +30,9 @@ export default function NavRibon() {
                     </button>
                     <button
                         className="flex-1 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center text-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"
-                        onClick={() => handleButtonClick(Reports.Balances)}
+                        onClick={() => handleButtonClick(Reports.Users)}
                     >
-                        Asset Balances
+                        Authorized Users
                     </button>
                     <button
                         className="flex-1 bg-gray-100 border border-gray-200 rounded-md flex items-center justify-center text-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 ease-in-out"

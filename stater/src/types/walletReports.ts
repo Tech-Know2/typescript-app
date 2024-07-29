@@ -4,7 +4,7 @@ export interface WalletReport {
 
 export enum Reports {
     Portfolio = "Portfolio",
-    Balances = "Balances",
+    Users = "Users",
     Connections = "Connections",
     Transactions = "Transactions",
     Mint = "Mint",

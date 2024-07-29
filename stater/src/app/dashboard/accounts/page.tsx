@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import React, { useEffect, useState } from 'react';
 import DashNavBar from '../dashNavBar';
@@ -7,6 +7,8 @@ import Wallets from './wallet';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { ClipLoader } from 'react-spinners';
 import { Wallet } from '@/types/Wallet';
+import User from '@/models/user';
+import { UserType } from '@/types/userType';
 
 export default function Accounts() {
     const { user, isAuthenticated } = useKindeBrowserClient();
@@ -14,13 +16,15 @@ export default function Accounts() {
     const [loading, setLoading] = useState(true);
     const [totalSum, setTotalSum] = useState(0);
     const [accountCount, setAccountCount] = useState(0);
+    const [error, setError] = useState<string | null>(null);
+    const [currentUser, setCurrentUser] = useState<UserType | null>(null);
 
     useEffect(() => {
         const loadAccounts = async () => {
-            if (isAuthenticated) {
+            if (isAuthenticated && user) {
                 try {
-                    // Construct the URL with query parameters
-                    const response = await fetch(`/api/wallet?ownerID=${user?.id || ''}`, {
+                    // Fetch user data
+                    const response = await fetch(`/api/user?kindeID=${user?.id}`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -28,16 +32,58 @@ export default function Accounts() {
                     });
 
                     if (response.ok) {
-                        const wallets: Wallet[] = await response.json();
-                        setAccountsData(wallets);
-                        const sum = wallets.reduce((sum, wallet) => sum + wallet.balance, 0);
-                        setTotalSum(sum);
-                        setAccountCount(wallets.length);
+                        const fetchedUser: UserType = await response.json();
+                        setCurrentUser(fetchedUser);
+
+                        // Fetch wallets data for the current user
+                        const walletResponse = await fetch(`/api/wallet?userID=${fetchedUser._id}`, {
+                            method: 'GET',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                        });
+
+                        if (walletResponse.ok) {
+                            const wallets: Wallet[] = await walletResponse.json();
+                            setAccountsData(wallets);
+                            const sum = wallets.reduce((sum, wallet) => sum + wallet.balance, 0);
+                            setTotalSum(sum);
+                            setAccountCount(wallets.length);
+                        } else {
+                            setError('Failed to retrieve wallets data.');
+                        }
+                    } else if (response.status === 404) {
+                        // Create a new user if not found
+                        const newUser: UserType = {
+                            kindeID: user.id,
+                            accountName: `${user.given_name ?? ''} ${user.family_name ?? ''}`.trim(),
+                            accountEmail: user.email as string,
+                            wallets: [],
+                        };
+
+                        const createResponse = await fetch('/api/user', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(newUser),
+                        });
+
+                        if (createResponse.ok) {
+                            const createdUser: UserType = await createResponse.json();
+                            setCurrentUser(createdUser);
+                            setAccountsData(createdUser.wallets || []);
+                            setTotalSum(0);
+                            setAccountCount(createdUser.wallets?.length || 0);
+                        } else {
+                            setError('Failed to create user.');
+                        }
                     } else {
-                        console.log("Failed to find wallets");
+                        setError('Failed to retrieve user data.');
                     }
                 } catch (error) {
-                    console.error('Error finding wallets:', error);
+                    console.error('Error finding or creating user:', error);
+                    setError('An error occurred while fetching or creating user data.');
                 } finally {
                     setLoading(false);
                 }
@@ -45,7 +91,7 @@ export default function Accounts() {
         };
 
         loadAccounts();
-    }, [isAuthenticated, user?.id]);
+    }, [isAuthenticated, user]);
 
     if (loading) {
         return (
@@ -59,17 +105,35 @@ export default function Accounts() {
         );
     }
 
+    if (error) {
+        return (
+            <div className="flex h-screen">
+                <DashNavBar />
+                <div className="flex flex-1 flex-col items-center justify-center bg-gray-100">
+                    <p className="mt-4 text-lg font-medium text-red-600">{error}</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!currentUser) {
+        return (
+            <div className="flex h-screen">
+                <DashNavBar />
+                <div className="flex flex-1 flex-col items-center justify-center bg-gray-100">
+                    <p className="mt-4 text-lg font-medium text-red-600">User data is not available.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="flex">
-            {/* Vertical Navigation Bar */}
             <DashNavBar />
-
-            {/* Main Content Area */}
             <div className="flex-1 p-8 bg-gray-100">
-                {/* Giant Header/Welcome Text */}
                 <h1 className="text-3xl font-bold mb-8">Your Accounts</h1>
                 <Ribon totalSum={totalSum} accountCount={accountCount} />
-                <Wallets wallets={accountsData} />
+                <Wallets wallets={accountsData} currentUser={currentUser} />
             </div>
         </div>
     );

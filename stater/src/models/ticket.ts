@@ -6,8 +6,9 @@ const ticketSchema = new Schema({
         type:Number,
         required: true,
     },
-    userID: {
-        type: String,
+    clientUser: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     questionHeader: {
@@ -23,8 +24,9 @@ const ticketSchema = new Schema({
         required: true,
         enum: ['Other', 'Accounts', 'Transfers', 'Minting', 'Ramping', 'MoneyGram', 'Investments', 'Connections'],
     },
-    responderUserID: {
-        type: String,
+    adminUser: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     responseText: {

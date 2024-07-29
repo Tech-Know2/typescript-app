@@ -12,9 +12,7 @@ const AccountItem: React.FC<AccountItemProps> = ({ index, account }) => {
 
   const handleManageClick = () => {
     const params = new URLSearchParams({
-        accountAddress: account.address,  // Ensure consistent parameter names
-        accountName: account.accountName,
-        owner: account.owner,
+        accountAddress: account.address,
     });
     router.push(`/dashboard/accounts/manage?${params.toString()}`);
   };

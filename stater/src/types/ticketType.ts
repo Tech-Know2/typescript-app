@@ -1,10 +1,12 @@
+import { UserType } from "./userType";
+
 export interface TicketType {
     ticketIndex: number;
-    userID: string;
+    clientUser: UserType;
     questionHeader: string;
     questionText: string;
     subjectMatter: SubjectMatter;
-    responderUserID: string;
+    adminUser: UserType;
     responseText: string;
     responseStatus: ResponseStatus;
     assistanceRating: AssistanceRating;

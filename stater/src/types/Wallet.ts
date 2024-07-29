@@ -1,8 +1,18 @@
+import { UserType } from "./userType";
+
 export interface Wallet {
-    accountName: string;
-    accountDescription: string;
-    accountType: string;
-    address: string;
-    balance: number;
-    owner: string;
-  }
+  user: UserType;
+  accountName: string;
+  accountDescription: string;
+  accountType: AccountType;
+  address: string;
+  balance: number;
+  owner: string;
+  authUsers: UserType[];
+}
+
+export enum AccountType {
+  Checkings = 'Checkings',
+  Savings = 'Savings',
+  Investments = 'Investments',
+}

@@ -5,19 +5,21 @@ const transactionSchema = new Schema({
         type: Number,
         required: true,
     },
-    senderAccountID: {
+    fromUser: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    toUser: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+    },
+    fromAddress: {
         type: String,
         required: true,
     },
-    recieverAccountID: {
-        type: String,
-        required: true,
-    },
-    senderAddress: {
-        type: String,
-        required: true,
-    },
-    recieverAddress: {
+    toAddress: {
         type: String,
         required: true,
     },

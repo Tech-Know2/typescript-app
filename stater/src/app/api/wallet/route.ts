@@ -1,37 +1,66 @@
 import { NextResponse, NextRequest } from 'next/server';
-import mongoose from 'mongoose';
-import Wallet from '@/models/wallet';
 import connection from '@/lib/db';
-import {v4 as UUID} from 'uuid';
+import Wallet from '@/models/wallet'; // Import the Wallet model
+import User from '@/models/user'; // Import the User model
+import { UserType } from '@/types/userType'; // Import UserType if needed
 
-export async function POST(req: Request, res: NextResponse) {
+export async function POST(req: Request) {
     if (req.method === 'POST') {
-        try {            
+        try {
             await connection();
 
             // Destructure the request body
             const data = await req.json();
-            const { owner, accountName, accountDescription, accountType } = data;
+            const { 
+                owner: { kindeID }, 
+                accountName, 
+                accountDescription, 
+                accountType 
+            } = data;
+
+            // Log values to verify
+            console.log(data);
+            console.log(kindeID);
+            console.log(accountName);
+            console.log(accountDescription);
+            console.log(accountType);
 
             // Validate required fields
-            if (!owner || !accountName || !accountDescription || !accountType) {
-                return NextResponse.json({ error: 'Missing Required Fields' }, { status: 400 })
+            if (!kindeID || !accountName || !accountDescription || !accountType) {
+                return NextResponse.json({ error: 'Missing Required Fields' }, { status: 400 });
             }
 
+            // Find the user by kindeID
+            const user = await User.findOne({ kindeID });
+
+            if (!user) {
+                return NextResponse.json({ error: 'User not found' }, { status: 404 });
+            }
+
+            // Create the new wallet
             const newWallet = new Wallet({
-                owner,
+                user: user._id,
                 accountName,
                 accountDescription,
                 accountType,
-                address: accountName + accountType,  // Temporary thing to assign unique values for the addresses
-                balance: 0,       // Default balance
+                address: accountName + accountType, // Temporary unique address
+                balance: 0,
+                authUsers: [user._id],
             });
 
             const createdWallet = await newWallet.save();
+
+            // Add the wallet ID to the user's wallets array
+            user.wallets.push(createdWallet._id);
+
+            // Save the updated user
+            await user.save();
+
             return NextResponse.json(createdWallet, { status: 201 });
+
         } catch (error) {
             console.error('Error creating wallet:', error);
-            return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
+            return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     } else {
         return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
@@ -45,16 +74,15 @@ export async function DELETE(req: NextRequest) {
 
             // Extract query parameters from the URL
             const url = new URL(req.url);
-            const ownerID = url.searchParams.get('ownerID') || '';
             const accountAddress = url.searchParams.get('accountAddress') || '';
 
             // Validate required fields
-            if (!ownerID || !accountAddress) {
-                return NextResponse.json({ error: 'Missing ownerID or accountAddress' }, { status: 400 });
+            if (!accountAddress) {
+                return NextResponse.json({ error: 'Missing accountAddress' }, { status: 400 });
             }
 
             // Perform the deletion
-            const result = await Wallet.deleteOne({ owner: ownerID, address: accountAddress });
+            const result = await Wallet.deleteOne({ address: accountAddress });
 
             if (result.deletedCount === 0) {
                 return NextResponse.json({ error: 'No wallet found to delete' }, { status: 404 });
@@ -77,15 +105,15 @@ export async function PATCH(req: NextRequest) {
         try {
             await connection();
 
-            const { owner, accountAddress, accountName, accountDescription } = await req.json();
+            const { accountAddress, accountName, accountDescription } = await req.json();
 
             // Validate required fields
-            if (!owner || !accountAddress) {
+            if (!accountAddress) {
                 return NextResponse.json({ error: 'Owner and accountAddress are required' }, { status: 400 });
             }
 
             // Find the wallet to update
-            const wallet = await Wallet.findOne({ owner, address: accountAddress });
+            const wallet = await Wallet.findOne({ address: accountAddress });
 
             if (!wallet) {
                 return NextResponse.json({ error: 'Wallet not found' }, { status: 404 });
@@ -119,25 +147,24 @@ export async function GET(req: NextRequest) {
 
             // Extract query parameters from the URL
             const url = new URL(req.url);
-            const ownerID = url.searchParams.get('ownerID') || '';
+            const userID = url.searchParams.get('userID') || '';
             const accountAddress = url.searchParams.get('accountAddress') || '';
-            const accountName = url.searchParams.get('accountName') || '';
 
-            // Validate ownerID
-            if (!ownerID) {
-                return NextResponse.json({ error: 'Missing ownerID' }, { status: 400 });
+            // Validate at least one parameter is provided
+            if (!userID && !accountAddress) {
+                return NextResponse.json({ error: 'Missing userID or accountAddress' }, { status: 400 });
             }
 
-            // Create a query object with explicit typing
-            const query: { owner: string; accountName?: string; address?: string } = { owner: ownerID };
-            if (accountName) {
-                query.accountName = accountName;
+            // Build the query object
+            const query: { user?: string; address?: string } = {};
+            if (userID) {
+                query.user = userID;
             }
             if (accountAddress) {
                 query.address = accountAddress;
             }
 
-            // Query the database for wallets with the provided ownerID (and optionally accountName or address)
+            // Query the database for wallets
             const wallets = await Wallet.find(query);
 
             return NextResponse.json(wallets, { status: 200 });

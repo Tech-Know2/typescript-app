@@ -5,12 +5,14 @@ import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import Balances from './balances';
 import { Wallet } from '@/types/Wallet';
 import { useRouter } from 'next/navigation';
+import { UserType } from '@/types/userType';
 
 interface BalanceProps {
     wallets: Wallet[];
+    currentUser: UserType;
 }
 
-export default function Wallets({ wallets }: BalanceProps) {
+export default function Wallets({ wallets, currentUser }: BalanceProps) {
     const { user, isAuthenticated } = useKindeBrowserClient();
     const router = useRouter();
     const [isFormVisible, setFormVisible] = useState(false);
@@ -50,9 +52,9 @@ export default function Wallets({ wallets }: BalanceProps) {
     }, [accountName, accountDescription, selectedOption]);
 
     const handleSubmit = async () => {
-        if (isAuthenticated) {
+        if (isAuthenticated && currentUser) {
             const walletData = {
-                owner: user?.id,
+                owner: currentUser,
                 accountName,
                 accountDescription,
                 accountType: selectedOption,
