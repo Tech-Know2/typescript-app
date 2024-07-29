@@ -73,9 +73,8 @@ export default function Wallets({ wallets, currentUser }: BalanceProps) {
                     const wallet = await response.json();
                     const params = new URLSearchParams({
                         accountAddress: wallet.address,
-                        accountName: wallet.accountName,
-                        owner: wallet.owner,
                     });
+
                     router.push(`/dashboard/accounts/manage?${params.toString()}`);
                 } else {
                     console.error('Failed to create wallet');

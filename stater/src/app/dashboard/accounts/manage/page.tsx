@@ -46,9 +46,14 @@ export default function ManageAccount() {
 
     useEffect(() => {
         const fetchWalletData = async () => {
-            if (isAuthenticated && accountAddress && owner) {
+            if (isAuthenticated) {
                 try {
-                    const response = await fetch(`/api/wallet?ownerID=${owner}&accountAddress=${accountAddress}`);
+                    const response = await fetch(`/api/wallet?accountAddress=${accountAddress}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
                     
                     if (response.ok) {
                         const data: Wallet[] = await response.json();
@@ -72,7 +77,7 @@ export default function ManageAccount() {
     }, [isAuthenticated, accountAddress, owner]);
 
     const updateWallet = async (updatedFields: { accountName?: string; accountDescription?: string }) => {
-        if (isAuthenticated && accountAddress && owner) {
+        if (isAuthenticated) {
             try {
                 const response = await fetch('/api/wallet', {
                     method: 'PATCH',
@@ -124,11 +129,11 @@ export default function ManageAccount() {
     };
 
     const handleConfirmDelete = async () => {
-        if (!owner || !accountAddress || !wallet || !isNameValid) return;
+        if (!isNameValid || !isAuthenticated) return;
     
         setDeleting(true);
         try {
-            const response = await fetch(`/api/wallet?ownerID=${owner}&accountAddress=${accountAddress}`, {
+            const response = await fetch(`/api/wallet?accountAddress=${accountAddress}`, {
                 method: 'DELETE',
             });
     

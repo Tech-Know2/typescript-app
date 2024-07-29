@@ -1,8 +1,9 @@
 import { NextResponse, NextRequest } from 'next/server';
 import connection from '@/lib/db';
-import Wallet from '@/models/wallet'; // Import the Wallet model
-import User from '@/models/user'; // Import the User model
-import { UserType } from '@/types/userType'; // Import UserType if needed
+import Wallet from '@/models/wallet';
+import User from '@/models/user';
+import { UserType } from '@/types/userType';
+import { ObjectId } from 'mongodb';
 
 export async function POST(req: Request) {
     if (req.method === 'POST') {
@@ -17,13 +18,6 @@ export async function POST(req: Request) {
                 accountDescription, 
                 accountType 
             } = data;
-
-            // Log values to verify
-            console.log(data);
-            console.log(kindeID);
-            console.log(accountName);
-            console.log(accountDescription);
-            console.log(accountType);
 
             // Validate required fields
             if (!kindeID || !accountName || !accountDescription || !accountType) {
@@ -81,6 +75,13 @@ export async function DELETE(req: NextRequest) {
                 return NextResponse.json({ error: 'Missing accountAddress' }, { status: 400 });
             }
 
+            // Find the wallet to delete
+            const walletToDelete = await Wallet.findOne({ address: accountAddress });
+
+            if (!walletToDelete) {
+                return NextResponse.json({ error: 'Wallet not found' }, { status: 404 });
+            }
+
             // Perform the deletion
             const result = await Wallet.deleteOne({ address: accountAddress });
 
@@ -88,17 +89,24 @@ export async function DELETE(req: NextRequest) {
                 return NextResponse.json({ error: 'No wallet found to delete' }, { status: 404 });
             }
 
+            // Update the owner's wallet array
+            const owner = await User.findOne({ wallets: walletToDelete._id });
+
+            if (owner) {
+                owner.wallets = owner.wallets.filter((walletId: ObjectId) => !walletId.equals(walletToDelete._id));
+                await owner.save();
+            }
+
             return NextResponse.json({ message: 'Wallet has been deleted' }, { status: 200 });
 
         } catch (error) {
-            console.error('Error deleting wallet', error);
+            console.error('Error deleting wallet:', error);
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     } else {
         return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
     }
 }
-
 
 export async function PATCH(req: NextRequest) {
     if (req.method === 'PATCH') {
