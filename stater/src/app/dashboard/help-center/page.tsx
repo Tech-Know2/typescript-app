@@ -5,7 +5,7 @@ import DashNavBar from '../dashNavBar';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { ClipLoader } from 'react-spinners';
 import TicketItem from './ticket';
-import { TicketType } from '../../../types/ticketType';
+import { TicketType, ResponseStatus } from '../../../types/ticketType';
 import TicketRibon from './ticketRibon';
 import TicketForm from './ticketForm';
 
@@ -16,6 +16,9 @@ export default function HelpCenter() {
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 4;
     const [isFormVisible, setFormVisible] = useState(false);
+    const [ticketSum, setTicketSum] = useState(0);
+    const [unAnswered, setUnAnswered] = useState(0);
+    const [answered, setAnswered] = useState(0);
 
     const fetchTickets = async () => {
         if (isAuthenticated) {
@@ -29,6 +32,15 @@ export default function HelpCenter() {
 
                 const data = await response.json();
                 setTickets(data);
+
+                const totalTickets = data.length;
+                const unansweredTickets = data.filter((ticket: TicketType) => ticket.responseStatus === ResponseStatus.Unanswered).length;
+                const answeredTickets = data.filter((ticket: TicketType) => ticket.responseStatus === ResponseStatus.Answered).length;
+
+                setTicketSum(totalTickets);
+                setUnAnswered(unansweredTickets);
+                setAnswered(answeredTickets);
+
                 setLoading(false);
             } catch (error) {
                 console.error('Failed to fetch tickets', error);
@@ -59,6 +71,7 @@ export default function HelpCenter() {
                 const ticket = await response.json();
                 setTickets(prevTickets => [ticket, ...prevTickets]);
                 toggleFormVisibility();
+                fetchTickets(); // Re-fetch tickets to update counts
             } else {
                 console.error('Failed to create ticket');
             }
@@ -91,7 +104,7 @@ export default function HelpCenter() {
             <div className="flex-1 p-8 bg-gray-100">
                 <h1 className="text-4xl font-bold mb-8">How can we help you, {user?.given_name}?</h1>
 
-                <TicketRibon ticketSum={5} unAnswered={2} unOpened={1} />
+                <TicketRibon ticketSum={ticketSum} unAnswered={unAnswered} unOpened={answered} />
 
                 <button
                     onClick={toggleFormVisibility}

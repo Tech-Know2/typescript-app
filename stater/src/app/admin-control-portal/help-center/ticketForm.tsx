@@ -45,6 +45,8 @@ const TicketForm: React.FC<AnswerFormProps> = ({ ticket, toggleFormVisibility, o
                 }
             } catch (error) {
                 console.error('Error updating ticket:', error);
+            } finally {
+                window.location.reload();
             }
         }
     };

@@ -11,6 +11,7 @@ interface TicketProps {
 const TicketDisplay: React.FC<TicketProps> = ({ ticket }) => {
     const [isPopupVisible, setPopupVisible] = useState(false);
     const [selectedRating, setSelectedRating] = useState(ticket.assistanceRating);
+    const { user, isAuthenticated } = useKindeBrowserClient();
 
     const togglePopupVisibility = () => {
         setPopupVisible(!isPopupVisible);
@@ -19,6 +20,69 @@ const TicketDisplay: React.FC<TicketProps> = ({ ticket }) => {
     const handleRatingChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setSelectedRating(event.target.value as AssistanceRating);
     };
+
+    const handleRateAndClose = (event: React.FormEvent) => {
+        handleRatingSubmit(event);
+        togglePopupVisibility();
+    };
+
+    const handleRatingSubmit = async (event: React.FormEvent) =>
+    {
+        if(isAuthenticated)
+        {
+            try {
+                /*const replyTicket: TicketType = {
+                    ...ticket,
+                    assistanceRating: selectedRating,
+                }*/ 
+               
+                //for sending assistance data reports back, will add this back in later
+
+                const response = await fetch(`/api/tickets?userID=${user?.id}&ticketIndex=${ticket.ticketIndex}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    setSelectedRating(AssistanceRating.Neutral);
+                    togglePopupVisibility();
+                }
+
+            } catch (error) {
+                console.error('Error updating ticket:', error);
+            } finally
+            {
+                window.location.reload();
+            }
+        }
+    }
+
+    const handleDelete = async (event: React.FormEvent) =>
+        {
+            if(isAuthenticated)
+            {
+                try {    
+                    const response = await fetch(`/api/tickets?userID=${user?.id}&ticketIndex=${ticket.ticketIndex}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if (response.ok) {
+                        console.log("Ticket successfully deleted");
+                    }
+    
+                } catch (error) {
+                    console.error('Error deleting ticket:', error);
+                } finally
+                {
+                    window.location.reload();
+                }
+            }
+        }
 
     return (
         <main>
@@ -36,7 +100,7 @@ const TicketDisplay: React.FC<TicketProps> = ({ ticket }) => {
                             Open
                         </button>
                     )}
-                    <button className="bg-red-500 text-white font-bold px-4 py-2 rounded-md">Delete</button>
+                    <button className="bg-red-500 text-white font-bold px-4 py-2 rounded-md" onClick={handleDelete}>Delete</button>
                 </div>
             </div>
 
@@ -74,6 +138,13 @@ const TicketDisplay: React.FC<TicketProps> = ({ ticket }) => {
                                 className="bg-gray-800 text-white font-bold px-4 py-2 rounded-md"
                             >
                                 Close
+                            </button>
+                            <button 
+                                type="button" 
+                                onClick={handleRateAndClose} 
+                                className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md"
+                            >
+                                Rate
                             </button>
                         </div>
                     </div>
