@@ -8,6 +8,7 @@ import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { ClipLoader } from 'react-spinners';
 import { Wallet } from '@/types/Wallet';
 import User from '@/models/user';
+import { ObjectId } from 'mongoose';
 import { UserType } from '@/types/userType';
 
 export default function Accounts() {
