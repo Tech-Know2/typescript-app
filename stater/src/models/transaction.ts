@@ -26,21 +26,21 @@ const transactionSchema = new Schema({
         required: true,
     },
     currency: {
-        type: String,
+        type: [String],
         required: true,
     },
     blockchain: {
-        type: String,
+        type: [String],
         required: true,
-        enum: ['Bitcoin', 'Solana', 'Ethereum', 'Stellar', 'Polygon', 'Optimism'],
+        enum: ['Stellar', 'Polygon', 'Solana'],
     },
     transactionType: {
         type: String,
         required: true,
-        enum: ['Withdrawl', 'Deposit', 'Transfer', 'Stellar', 'Polygon', 'Optimism'],
+        enum: ['Withdrawl', 'Deposit', 'Transfer', 'Stake', 'Unstake', 'Ramp In', 'Ramp Out', 'Mint', 'Burn'],
     },
     }, {
-    timestamps: true, // Automatically adds createdAt and updatedAt fields
+    timestamps: true,
 });
 
 // Create a model using the schema

@@ -18,10 +18,9 @@ const DashNavBar = () => {
       <Link href="/dashboard/accounts" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Accounts</Link>
       <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Transfer</Link>
       <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Swap</Link>
-      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Research</Link>
+      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Connections</Link>
       <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Ramp</Link>
       <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Mint</Link>
-      <Link href="/" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">MoneyGram</Link>
       <Link href="/dashboard/help-center" className="block px-4 py-2 rounded-md hover:bg-gray-700 hover:text-white">Help Center</Link>
     </>
   );
