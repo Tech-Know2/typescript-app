@@ -6,6 +6,7 @@ import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 import { ClipLoader } from 'react-spinners';
 import { TicketType } from '../../../types/ticketType';
 import TicketDisplay from './ticket';
+import { ResponseStatus } from '../../../types/ticketType';
 
 export default function HelpCenter() {
     const { user, isAuthenticated } = useKindeBrowserClient();
@@ -17,7 +18,7 @@ export default function HelpCenter() {
     const fetchTickets = async () => {
         if (isAuthenticated) {
             try {
-                const response = await fetch(`/api/tickets?userID=${''}`, {
+                const response = await fetch(`/api/tickets?status=${ResponseStatus.Unanswered}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

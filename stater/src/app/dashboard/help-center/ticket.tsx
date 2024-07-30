@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { TicketType, AssistanceRating, ResponseStatus } from '../../../types/ticketType';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
+import User from '@/models/user';
+import { UserType } from '@/types/userType';
 
 interface TicketProps {
     ticket: TicketType;
@@ -38,7 +40,7 @@ const TicketDisplay: React.FC<TicketProps> = ({ ticket }) => {
                
                 //for sending assistance data reports back, will add this back in later
 
-                const response = await fetch(`/api/tickets?userID=${user?.id}&ticketIndex=${ticket.ticketIndex}`, {
+                const response = await fetch(`/api/tickets?clientID=${user?.id}&ticketIndex=${ticket.ticketIndex}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -64,7 +66,7 @@ const TicketDisplay: React.FC<TicketProps> = ({ ticket }) => {
             if(isAuthenticated)
             {
                 try {    
-                    const response = await fetch(`/api/tickets?userID=${user?.id}&ticketIndex=${ticket.ticketIndex}`, {
+                    const response = await fetch(`/api/tickets?clientID=${user?.id}&ticketIndex=${ticket.ticketIndex}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',

@@ -16,53 +16,69 @@ const TicketForm: React.FC<AnswerFormProps> = ({ ticket, toggleFormVisibility, o
     const { user, isAuthenticated } = useKindeBrowserClient();
     const [currentUser, setCurrentUser] = useState<UserType | null>(null);
 
-    const handleSubmit = async (event: React.FormEvent) => {
-        event.preventDefault();
-        if (isAuthenticated) {
-            try {
-                const res = await fetch(`/api/user?kindeID=${user?.id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-
-                const fetchedUser: UserType = await res.json();
-                setCurrentUser(fetchedUser);
-
-                if(currentUser != null)
-                {
-                    const reply: TicketType = {
-                        ...ticket,
-                        adminUser: currentUser._id,
-                        responseText: responseText,
-                        responseStatus: ResponseStatus.Answered,
-                        assistanceRating: AssistanceRating.Neutral,
-                    };
-    
-                    const response = await fetch(`/api/tickets?clientID=${ticket.clientUser._id}&ticketIndex=${ticket.ticketIndex}`, {
-                        method: 'PATCH',
+    useEffect(() => {
+        const fetchCurrentUser = async () => {
+            if (isAuthenticated) {
+                try {
+                    const res = await fetch(`/api/user?kindeID=${user?.id}`, {
+                        method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(reply),
                     });
-    
-                    if (response.ok) {
-                        // Call onSubmit to update the parent component state
-                        onSubmit(reply);
-                        // Clear the response text and close the form
-                        setResponseText("");
-                        toggleFormVisibility();
+
+                    if (res.ok) {
+                        const fetchedUser: UserType = await res.json();
+                        setCurrentUser(fetchedUser);
                     } else {
-                        console.error('Error updating ticket:', await response.json());
+                        console.error('Failed to fetch current user.');
                     }
+                } catch (error) {
+                    console.error('Error fetching current user:', error);
+                }
+            }
+        };
+
+        fetchCurrentUser();
+    }, [isAuthenticated, user]);
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (isAuthenticated && currentUser) {
+            try {
+                const reply: TicketType = {
+                    ...ticket,
+                    responseText: responseText,
+                    responseStatus: ResponseStatus.Answered,
+                    assistanceRating: AssistanceRating.Neutral,
+                };
+
+                const response = await fetch(`/api/tickets?clientID=${ticket.clientUser}&ticketIndex=${ticket.ticketIndex}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(reply),
+                });
+
+                if (response.ok) {
+                    // Call onSubmit to update the parent component state
+                    onSubmit(reply);
+                    // Clear the response text and close the form
+                    setResponseText('');
+                    toggleFormVisibility();
+
+                    window.location.reload();
+                } else {
+                    const errorData = await response.json();
+                    console.error('Error updating ticket:', errorData);
                 }
             } catch (error) {
                 console.error('Error updating ticket:', error);
-            } finally {
-                window.location.reload();
             }
+        } else {
+            console.log('User is not authenticated or currentUser is null');
         }
     };
 

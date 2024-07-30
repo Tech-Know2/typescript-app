@@ -1,10 +1,10 @@
 import { NextResponse, NextRequest } from 'next/server';
 import mongoose from 'mongoose';
 import Ticket from '../../../models/ticket'
-import { TicketType } from '../../../types/ticketType';
 import connection from '../../../lib/db'
 import User from '@/models/user';
 import { ObjectId } from 'mongodb';
+import { AssistanceRating, ResponseStatus, TicketType } from '../../../types/ticketType';
 
 export async function POST(req: Request, res: NextResponse) {
     if (req.method === 'POST') {
@@ -76,16 +76,19 @@ export async function DELETE(req: Request, res: NextResponse) {
             await connection();
 
             const url = new URL(req.url);
-            const userID = url.searchParams.get('userID');
+            const clientID = url.searchParams.get('clientID');
             const ticketIndex = url.searchParams.get('ticketIndex');
 
             // Validate required fields
-            if (!userID || !ticketIndex) {
+            if (!clientID || !ticketIndex) {
                 return NextResponse.json({ error: 'Missing ownerID or accountAddress' }, { status: 400 });
             }
 
             // Perform the deletion
-            const result = await Ticket.deleteOne({ userID: userID, ticketIndex: ticketIndex });
+            const client = await User.find({kindeID: clientID});
+            const ticket = await Ticket.findOne({clientID: client._id, ticketIndex: ticketIndex});
+
+            const result = await Ticket.deleteOne(ticket);
 
             if (result.deletedCount === 0) {
                 return NextResponse.json({ error: 'No ticket found to delete' }, { status: 404 });
@@ -94,7 +97,8 @@ export async function DELETE(req: Request, res: NextResponse) {
             return NextResponse.json({ message: 'Ticket has been deleted' }, { status: 200 });
             
         } catch (error) {
-            
+            console.error('Error deleating ticket:', error);
+            return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
         }
 
     } else 
@@ -114,13 +118,18 @@ export async function PATCH(req: Request, res: NextResponse) {
 
             const data = await req.json();
 
-            const {adminUser, responseText, responseStatus} = data;
+            const {responseText, responseStatus} = data;
 
-            const ticket = await Ticket.findOne({ clientID: clientID, ticketIndex: ticketIndex });
+            const client = await User.find({kindeID: clientID});
+            const ticket = await Ticket.findOne({clientID: client._id, ticketIndex: ticketIndex});
 
-            const admin = await User.findById(adminUser);
+            const reply: TicketType = {
+                ...ticket,
+                responseText: responseText,
+                responseStatus: ResponseStatus.Answered,
+                assistanceRating: AssistanceRating.Neutral,
+            };
 
-            ticket.adminUser = admin;
             ticket.responseText = responseText;
             ticket.responseStatus = responseStatus;
 
@@ -145,15 +154,22 @@ export async function GET(req: Request, res: NextResponse) {
 
             const url = new URL(req.url);
             const userID = url.searchParams.get('userID');
+            const status = url.searchParams.get('status');
 
-            let tickets;
-            if (userID) {
-                tickets = await Ticket.find({ userID });
-            } else {
-                tickets = await Ticket.find({responseStatus: 'Unanswered'});
-            }
+            if(userID)
+            {
+                const client = await User.find({kindeID: userID});
+                const tickets = await Ticket.find({clientID: client._id});
+                
+                return NextResponse.json(tickets, { status: 200 });
+            } else 
+            {
+                const tickets = await Ticket.find({responseStatus: status});
+                
+                return NextResponse.json(tickets, { status: 200 });
+            }            
 
-            return NextResponse.json(tickets, { status: 200 });
+            
         } catch (error) {
             console.error('Error fetching tickets:', error);
             return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

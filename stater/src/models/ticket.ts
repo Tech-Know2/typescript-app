@@ -24,24 +24,19 @@ const ticketSchema = new Schema({
         required: true,
         enum: ['Other', 'Accounts', 'Transfers', 'Minting', 'Ramping', 'MoneyGram', 'Investments', 'Connections'],
     },
-    adminUser: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: false,
-    },
     responseText: {
         type: String,
-        required: false,
+        required: true,
     },
     responseStatus: {
         type: String,
-        required: false,
+        required: true,
         enum: ['Answered', 'Unanswered'],
         default: 'Unanswered',
     },
     assistanceRating: {
         type: String,
-        required: false,
+        required: true,
         enum: ['Satisifed', 'Neutral', 'Disappointed', 'Unsatisfied', 'Outraged'],
     },
     }, {

@@ -6,9 +6,8 @@ export interface TicketType {
     questionHeader: string;
     questionText: string;
     subjectMatter: SubjectMatter;
-    adminUser?: UserType;
-    responseText?: string;
-    responseStatus?: ResponseStatus;
+    responseText: string;
+    responseStatus: ResponseStatus;
     assistanceRating?: AssistanceRating;
 }
 
