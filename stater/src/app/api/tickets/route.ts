@@ -170,9 +170,6 @@ export async function GET(req: Request, res: NextResponse) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 });
         }
 
-        console.log('Client found:', client);
-        console.log(path);
-
         let tickets;
         if (client.accountRole === accountRole.Admin && path === 'admin') {
             // If the user is an admin, fetch all tickets
