@@ -177,7 +177,7 @@ export async function GET(req: Request, res: NextResponse) {
         if (client.accountRole === accountRole.Admin && path === 'admin') {
             // If the user is an admin, fetch all tickets
             tickets = await Ticket.find({ responseStatus: ResponseStatus.Unanswered });
-        } else if (client.accountRole === accountRole.Retail && path === 'user') {
+        } else if ((client.accountRole === accountRole.Retail || client.accountRole === accountRole.Admin) && path === 'user') {
             // If the user is a retail user, fetch only their tickets
             tickets = await Ticket.find({ clientUser: client._id });
         } else {
