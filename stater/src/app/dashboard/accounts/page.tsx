@@ -9,16 +9,26 @@ import { ClipLoader } from 'react-spinners';
 import { Wallet } from '@/types/Wallet';
 import User from '@/models/user';
 import { ObjectId } from 'mongoose';
-import { UserType } from '@/types/userType';
+import { UserType, accountRole } from '@/types/userType';
 
 export default function Accounts() {
-    const { user, isAuthenticated } = useKindeBrowserClient();
+    const { user, isAuthenticated, getPermission } = useKindeBrowserClient();
     const [accountsData, setAccountsData] = useState<Wallet[]>([]);
     const [loading, setLoading] = useState(true);
     const [totalSum, setTotalSum] = useState(0);
     const [accountCount, setAccountCount] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+
+    const getRoleFromPermissions = async () => {
+        if (await getPermission('view:admin')) {
+            return accountRole.Admin;
+        } else if (await getPermission('view:client')) {
+            return accountRole.Business;
+        } else {
+            return accountRole.Retail;
+        }
+    };
 
     useEffect(() => {
         const loadAccounts = async () => {
@@ -55,10 +65,14 @@ export default function Accounts() {
                         }
                     } else if (response.status === 404) {
                         // Create a new user if not found
+                        const accountRole = await getRoleFromPermissions();
+
                         const newUser: UserType = {
                             kindeID: user.id,
-                            accountName: `${user.given_name ?? ''} ${user.family_name ?? ''}`.trim(),
+                            firstName: user.given_name as string,
+                            lastName: user.family_name as string,
                             accountEmail: user.email as string,
+                            accountRole: accountRole,
                             wallets: [],
                         };
 

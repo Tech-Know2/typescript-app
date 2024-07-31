@@ -8,10 +8,10 @@ import TicketItem from './ticket';
 import { TicketType, ResponseStatus } from '../../../types/ticketType';
 import TicketRibon from './ticketRibon';
 import TicketForm from './ticketForm';
-import { UserType } from '@/types/userType';
+import { UserType, accountRole } from '@/types/userType';
 
 export default function HelpCenter() {
-    const { user, isAuthenticated } = useKindeBrowserClient();
+    const { user, isAuthenticated, getPermission } = useKindeBrowserClient();
     const [tickets, setTickets] = useState<TicketType[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
@@ -22,6 +22,16 @@ export default function HelpCenter() {
     const [answered, setAnswered] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+
+    const getRoleFromPermissions = async () => {
+        if (await getPermission('view:admin')) {
+            return accountRole.Admin;
+        } else if (await getPermission('view:client')) {
+            return accountRole.Business;
+        } else {
+            return accountRole.Retail;
+        }
+    };
 
     const fetchTickets = async () => {
         if (isAuthenticated && user) {
@@ -39,7 +49,7 @@ export default function HelpCenter() {
                     setCurrentUser(fetchedUser);
     
                     // Fetch tickets data for the current user
-                    const ticketResponse = await fetch(`/api/tickets?userID=${fetchedUser._id}`, {
+                    const ticketResponse = await fetch(`/api/tickets?userID=${user?.id}&path=user`, {
                         method: 'GET',
                         headers: {
                             'Content-Type': 'application/json',
@@ -67,10 +77,14 @@ export default function HelpCenter() {
                     }
                 } else if (response.status === 404) {
                     // Create a new user if not found
+                    const accountRole = await getRoleFromPermissions();
+
                     const newUser: UserType = {
                         kindeID: user.id,
-                        accountName: `${user.given_name ?? ''} ${user.family_name ?? ''}`.trim(),
+                        firstName: user.given_name as string,
+                        lastName: user.family_name as string,
                         accountEmail: user.email as string,
+                        accountRole: accountRole,
                         wallets: [],
                     };
     

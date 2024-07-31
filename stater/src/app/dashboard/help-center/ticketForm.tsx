@@ -59,7 +59,7 @@ const TicketForm: React.FC<TicketFormProps> = ({ isFormVisible, toggleFormVisibi
                     questionHeader,
                     questionText,
                     subjectMatter: selectedSubject,
-                    responseText: "",
+                    responseText: "Enter response here",
                     responseStatus: ResponseStatus.Unanswered,
                     assistanceRating: AssistanceRating.Neutral,
                 };

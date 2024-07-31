@@ -18,7 +18,7 @@ export default function HelpCenter() {
     const fetchTickets = async () => {
         if (isAuthenticated) {
             try {
-                const response = await fetch(`/api/tickets?status=${ResponseStatus.Unanswered}`, {
+                const response = await fetch(`/api/tickets?userID=${user?.id}&path=admin`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json',

@@ -11,12 +11,14 @@ export async function POST(req: Request, res: NextResponse) {
 
             const data = await req.json();
 
-            const { kindeID, accountName, accountEmail, wallets } = data;
+            const { kindeID, firstName, lastName, accountEmail, accountRole, wallets } = data;
 
             const newUser = new User({
                 kindeID,
-                accountName,
+                firstName,
+                lastName,
                 accountEmail,
+                accountRole,
                 wallets
             });
 

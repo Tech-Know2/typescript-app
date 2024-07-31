@@ -6,13 +6,23 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  accountName: {
+  firstName: {
+    type: String,
+    required: true,
+  },
+  lastName: {
     type: String,
     required: true,
   },
   accountEmail: {
     type: String,
     required: true,
+  },
+  accountRole: {
+    type: String,
+      required: true,
+      enum: ['Retail', 'Admin', 'Business'],
+      default: 'Retail',
   },
   wallets: [{
     type: Schema.Types.ObjectId,

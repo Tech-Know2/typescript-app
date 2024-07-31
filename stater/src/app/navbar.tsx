@@ -12,7 +12,7 @@ const Navbar = () => {
               {/* Mobile menu button */}
               <button
                 type="button"
-                className="inline-flex items-center justify-center p-2 rounded-md text-black hover:text-white hover:bg-gray-700 focus:outline-none focus:bg-gray-700 focus:text-white"
+                className="inline-flex items-center justify-center p-2 rounded-md text-black hover:text-white hover:bg-gray-800 focus:outline-none focus:bg-gray-700 focus:text-white"
                 aria-controls="mobile-menu"
                 aria-expanded="false"
               >
@@ -60,29 +60,35 @@ const Navbar = () => {
               </div>
               {/* Navigation links */}
               <div className="hidden sm:block sm:ml-6 flex-grow">
-                <div className="flex space-x-4">
-                  <Link href="/" className="text-black hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                    Products
+                <div className="flex space-x-8 justify-center">
+                  <Link href="/" className="text-black hover:bg-gray-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Invest
                   </Link>
-                  <Link href="/" className="text-black hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                    Solutions
+                  <Link href="/" className="text-black hover:bg-gray-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Save & Spend
                   </Link>
-                  <Link href="/" className="text-black hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                    Case Studies
+                  <Link href="/" className="text-black hover:bg-gray-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Credit
                   </Link>
-                  <Link href="/" className="text-black hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
-                    Pricing
+                  <Link href="/" className="text-black hover:bg-gray-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Web
+                  </Link>
+                  <Link href="/" className="text-black hover:bg-gray-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Mobile
+                  </Link>
+                  <Link href="/" className="text-black hover:bg-gray-800 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    Business
                   </Link>
                 </div>
               </div>
             </div>
             {/* Right-side navigation */}
             <div className="sm:flex sm:items-center sm:ml-6">
-              <LoginLink className="text-black hover:bg-gray-700 hover:text-white hover:border-1 px-5 py-2 rounded-md text-sm font-medium border-2 border-black rounded-full mr-2">
+              <LoginLink className="text-black hover:bg-gray-800 hover:text-white hover:border-1 px-5 py-2 rounded-md text-sm font-medium border-2 border-black rounded-full mr-2">
                 Log In
               </LoginLink>
-              <RegisterLink className="text-white bg-black hover:bg-gray-700 px-5 py-2 rounded-md text-sm font-medium">
-                Sign Up 
+              <RegisterLink className="text-white bg-black hover:bg-gray-800 px-5 py-2 rounded-md text-sm font-medium">
+                Register
               </RegisterLink>
           </div>
           </div>

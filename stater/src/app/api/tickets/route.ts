@@ -5,6 +5,7 @@ import connection from '../../../lib/db'
 import User from '@/models/user';
 import { ObjectId } from 'mongodb';
 import { AssistanceRating, ResponseStatus, TicketType } from '../../../types/ticketType';
+import { accountRole } from '@/types/userType';
 
 export async function POST(req: Request, res: NextResponse) {
     if (req.method === 'POST') {
@@ -148,33 +149,44 @@ export async function PATCH(req: Request, res: NextResponse) {
 }
 
 export async function GET(req: Request, res: NextResponse) {
-    if (req.method === 'GET') {
-        try {
-            await connection();
-
-            const url = new URL(req.url);
-            const userID = url.searchParams.get('userID');
-            const status = url.searchParams.get('status');
-
-            if(userID)
-            {
-                const client = await User.find({kindeID: userID});
-                const tickets = await Ticket.find({clientID: client._id});
-                
-                return NextResponse.json(tickets, { status: 200 });
-            } else 
-            {
-                const tickets = await Ticket.find({responseStatus: status});
-                
-                return NextResponse.json(tickets, { status: 200 });
-            }            
-
-            
-        } catch (error) {
-            console.error('Error fetching tickets:', error);
-            return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-        }
-    } else {
+    if (req.method !== 'GET') {
         return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
+    }
+
+    try {
+        await connection();
+
+        const url = new URL(req.url);
+        const userID = url.searchParams.get('userID');
+        const path = url.searchParams.get('path');
+
+        if (!userID) {
+            return NextResponse.json({ error: 'User ID not provided' }, { status: 400 });
+        }
+
+        const client = await User.findOne({ kindeID: userID });
+
+        if (!client) {
+            return NextResponse.json({ error: 'User not found' }, { status: 404 });
+        }
+
+        console.log('Client found:', client);
+        console.log(path);
+
+        let tickets;
+        if (client.accountRole === accountRole.Admin && path === 'admin') {
+            // If the user is an admin, fetch all tickets
+            tickets = await Ticket.find({ responseStatus: ResponseStatus.Unanswered });
+        } else if (client.accountRole === accountRole.Retail && path === 'user') {
+            // If the user is a retail user, fetch only their tickets
+            tickets = await Ticket.find({ clientUser: client._id });
+        } else {
+            return NextResponse.json({ error: 'User role not recognized or path mismatch' }, { status: 403 });
+        }
+
+        return NextResponse.json(tickets, { status: 200 });
+    } catch (error) {
+        console.error('Error fetching tickets:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
