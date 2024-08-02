@@ -41,13 +41,14 @@ export async function GET(req: Request, res: NextResponse) {
 
             const url = new URL(req.url);
             const kindeID = url.searchParams.get('kindeID') || '';
+            const userID = url.searchParams.get('userID') || '';
 
             // Validate ownerID
-            if (!kindeID) {
-                return NextResponse.json({ error: 'Missing kindeID' }, { status: 400 });
+            if (!kindeID && !userID) {
+                return NextResponse.json({ error: 'Missing info' }, { status: 400 });
             }
 
-            const query: { kindeID: string } = {kindeID: kindeID};
+            const query: { kindeID?: string, userID?: string } = {};
 
             const user = await User.findOne(query);
 

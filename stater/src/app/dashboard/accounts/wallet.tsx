@@ -6,6 +6,7 @@ import Balances from './balances';
 import { Wallet } from '@/types/Wallet';
 import { useRouter } from 'next/navigation';
 import { UserType } from '@/types/userType';
+import { generateStellarWallet } from '../../../lib/stellar';
 
 interface BalanceProps {
     wallets: Wallet[];
@@ -20,6 +21,9 @@ export default function Wallets({ wallets, currentUser }: BalanceProps) {
     const [accountName, setAccountName] = useState("");
     const [accountDescription, setAccountDescription] = useState("");
     const [isFormValid, setFormValid] = useState(false);
+    const [publicKey, setPublicKey] = useState<string | null>(null);
+    const [secretKey, setSecretKey] = useState<string | null>(null);
+    const [showPopup, setShowPopup] = useState(false);
 
     const toggleFormVisibility = () => {
         setFormVisible(!isFormVisible);
@@ -51,13 +55,33 @@ export default function Wallets({ wallets, currentUser }: BalanceProps) {
         validateForm();
     }, [accountName, accountDescription, selectedOption]);
 
+    const handleCopy = (key: string | null) => {
+        if (key) {
+            navigator.clipboard.writeText(key).then(() => {
+                alert('Key copied to clipboard');
+            });
+        }
+    };
+
+    async function createWallet() {
+        try {
+            const { publicKey, secretKey } = await generateStellarWallet();
+            setPublicKey(publicKey);
+            setSecretKey(secretKey);
+            setShowPopup(true);
+        } catch (error) {
+            console.error("Error creating wallet: ", error);
+        }
+    }
+
     const handleSubmit = async () => {
-        if (isAuthenticated && currentUser) {
+        if (isAuthenticated && currentUser && publicKey) {
             const walletData = {
                 owner: currentUser,
                 accountName,
                 accountDescription,
                 accountType: selectedOption,
+                address: publicKey
             };
 
             try {
@@ -86,6 +110,9 @@ export default function Wallets({ wallets, currentUser }: BalanceProps) {
                 setAccountName("");
                 setAccountDescription("");
                 setSelectedOption("");
+                setPublicKey(null);
+                setSecretKey(null);
+                setShowPopup(false);
             }
         }
     };
@@ -172,10 +199,65 @@ export default function Wallets({ wallets, currentUser }: BalanceProps) {
                             </button>
                             <button
                                 className={`bg-blue-500 text-white font-bold px-4 py-2 rounded-md ${!isFormValid ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                onClick={handleSubmit}
+                                onClick={async () => {
+                                    await createWallet();
+                                }}
                                 disabled={!isFormValid}
                             >
                                 Submit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showPopup && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-lg p-6 w-1/2 space-y-4">
+                        <h2 className="text-xl font-bold">Your Wallet Keys</h2>
+                        <h3 className="text-lg">Your private key is not stored, make sure to copy this key down and save it somewhere. If you lose it you lose the money in your accounts, and there is no other way to get it back. Save it for later!</h3>
+                        
+                        <div className="flex flex-col mb-4">
+                            <label className="text-lg font-semibold">Public Key:</label>
+                            <input
+                                type="text"
+                                readOnly
+                                value={publicKey || ''}
+                                className="border border-gray-300 rounded-md p-2 w-full mb-2"
+                            />
+                            <button
+                                className="bg-gray-800 text-white font-bold px-4 py-2 rounded-md"
+                                onClick={() => handleCopy(publicKey)}
+                            >
+                                Copy Public Key
+                            </button>
+                        </div>
+
+                        <div className="flex flex-col mb-4">
+                            <label className="text-lg font-semibold">Secret Key:</label>
+                            <input
+                                type="text"
+                                readOnly
+                                value={secretKey || ''}
+                                className="border border-gray-300 rounded-md p-2 w-full mb-2"
+                            />
+                            <button
+                                className="bg-gray-800 text-white font-bold px-4 py-2 rounded-md"
+                                onClick={() => handleCopy(secretKey)}
+                            >
+                                Copy Secret Key
+                            </button>
+                        </div>
+
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-blue-500 text-white font-bold px-4 py-2 rounded-md"
+                                onClick={() => {
+                                    setShowPopup(false);
+                                    handleSubmit();
+                                }}
+                            >
+                                Continue
                             </button>
                         </div>
                     </div>

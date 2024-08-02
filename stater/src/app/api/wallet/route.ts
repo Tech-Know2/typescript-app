@@ -16,11 +16,12 @@ export async function POST(req: Request) {
                 owner: { kindeID }, 
                 accountName, 
                 accountDescription, 
-                accountType 
+                accountType,
+                address
             } = data;
 
             // Validate required fields
-            if (!kindeID || !accountName || !accountDescription || !accountType) {
+            if (!kindeID || !accountName || !accountDescription || !accountType || !address) {
                 return NextResponse.json({ error: 'Missing Required Fields' }, { status: 400 });
             }
 
@@ -37,7 +38,7 @@ export async function POST(req: Request) {
                 accountName,
                 accountDescription,
                 accountType,
-                address: accountName + accountType, // Temporary unique address
+                address,
                 balance: 0,
                 authUsers: [user._id],
             });
@@ -167,15 +168,15 @@ export async function GET(req: NextRequest) {
             const query: { user?: string; address?: string } = {};
             if (userID) {
                 query.user = userID;
-            }
-            if (accountAddress) {
+
+                const wallets = await Wallet.find(query);
+                return NextResponse.json(wallets, { status: 200 });
+            } else if (accountAddress) {
                 query.address = accountAddress;
-            }
 
-            // Query the database for wallets
-            const wallets = await Wallet.find(query);
-
-            return NextResponse.json(wallets, { status: 200 });
+                const wallet = await Wallet.findOne(query);
+                return NextResponse.json(wallet, { status: 200 });
+            }            
 
         } catch (error) {
             console.error('Error retrieving wallets:', error);

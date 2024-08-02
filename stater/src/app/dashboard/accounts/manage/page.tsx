@@ -26,14 +26,41 @@ export default function ManageAccount() {
     const accountName = searchParams.get('accountName');
     const owner = searchParams.get('owner');
 
+    const [isTransactionFormVisible, setTransactionFormVisible] = useState(false);
+    const [isTransactionValid, setTransactionValid] = useState(true);
+    const [inputAddress, setInputAddress] = useState('');
+    const [inputSum, setInputSum] = useState('');
+    const [addressOwner, setAddressOwner] = useState('');
+
     const MAX_NAME_LENGTH = 16;
     const MAX_DESC_LENGTH = 32;
     const [nameCount, setNameCount] = useState(0);
     const [descCount, setDescCount] = useState(0);
 
+    const completeTransaction = () => {
+        if(isAuthenticated && isTransactionValid)
+        {
+            console.log("Will work on sending funds later")
+            toggleTransactionFormVisiblity();
+        }
+    }
+
+    const handleSumChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setInputSum(value)
+    };
+
+    const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setInputAddress(value)
+    };
 
     const toggleFormVisibility = () => {
         setFormVisible(!isFormVisible);
+    };
+
+    const toggleTransactionFormVisiblity = () => {
+        setTransactionFormVisible(!isTransactionFormVisible);
     };
 
     const toggleNameVisibility = () => {
@@ -56,12 +83,9 @@ export default function ManageAccount() {
                     });
                     
                     if (response.ok) {
-                        const data: Wallet[] = await response.json();
-                        if (data.length > 0) {
-                            setWallet(data[0]); // Assuming the accountName is unique and returns a single wallet
-                        } else {
-                            console.error('No wallet found');
-                        }
+                        const fetchedWallet = await response.json();
+                        setWallet(fetchedWallet);
+
                     } else {
                         console.error('Failed to fetch wallet data');
                     }
@@ -107,6 +131,52 @@ export default function ManageAccount() {
             alert('You must be authenticated to update the wallet');
         }
     };
+
+    const checkTransactionValidity = async () => {
+        if (isAuthenticated && inputAddress != '' && inputSum != '' && inputAddress != accountAddress)
+        {
+            try {
+                const response = await fetch(`/api/wallet?accountAddress=${inputAddress}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                
+                if (response.ok) {
+                    const wallet = await response.json();
+                    
+                    const res = await fetch(`/api/user?userID=${wallet.user._id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+
+                    if(res.ok)
+                    {
+                        const accountOwner = await res.json();
+                        setAddressOwner(accountOwner.firstName + " " + accountOwner.lastName as string);
+                        setTransactionValid(true);
+
+                    } else 
+                    {
+                        console.error('Failed to find user matching account');
+                    }
+
+                } else {
+                    console.error('Failed to fetch wallet data');
+                }
+            } catch (error) {
+                console.error('Error fetching wallet data:', error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            console.error("You must be authenticated or send to a wallet you don't own");
+            setAddressOwner("Error validating transaction, try adding a value to sum, or change account address");
+        }
+    }
 
     const handleDelete = () => {
         if (wallet) {
@@ -219,7 +289,7 @@ export default function ManageAccount() {
                             <button onClick={handleDescriptionChange} className="bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400 transition duration-300 ease-in-out">
                                 Edit Description
                             </button>
-                            <button className="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300 ease-in-out">
+                            <button onClick={toggleTransactionFormVisiblity} className="bg-green-500 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-400 transition duration-300 ease-in-out">
                                 Transfer Funds
                             </button>
                             <button
@@ -323,6 +393,57 @@ export default function ManageAccount() {
                                 className={`bg-blue-500 text-white font-bold px-4 py-2 rounded-md ${!isDescValid ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 onClick={handleDescriptionSubmit}
                                 disabled={!isDescValid}
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {isTransactionFormVisible && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white rounded-lg p-6 w-1/2 space-y-4">
+                        <h2 className="text-xl font-bold">Transfer Funds</h2>
+                        <p className="text-md mb-4">Transfer Sum:</p>
+                        <input
+                            type="number"
+                            value={inputSum}
+                            onChange={handleSumChange}
+                            placeholder="Enter Transfer Amount"
+                            className="border border-gray-300 rounded-md p-2 w-full"
+                        />
+                        <p className="text-md mb-4">Enter Recivers Address:</p>
+                        <input
+                            type="text"
+                            value={inputAddress}
+                            onChange={handleAddressChange}
+                            placeholder="Recievers Address"
+                            className="border border-gray-300 rounded-md p-2 w-full"
+                        />
+
+                        <p className="text-md">Account Owner:</p>
+                        <p className=''>{addressOwner}</p>
+                        
+                        <button
+                            className={`bg-blue-500 text-white font-bold px-4 py-2 rounded-md ${!isTransactionValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            onClick={checkTransactionValidity}
+                            disabled={!isTransactionValid}
+                        >
+                            Validate Transaction
+                        </button>
+
+                        <div className="flex justify-end space-x-2">
+                            <button
+                                className="bg-gray-800 text-white font-bold px-4 py-2 rounded-md"
+                                onClick={toggleTransactionFormVisiblity}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                className={`bg-blue-500 text-white font-bold px-4 py-2 rounded-md ${!isTransactionValid ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                onClick={completeTransaction} // Add function to handle transfer
+                                disabled={!isTransactionValid}
                             >
                                 Confirm
                             </button>
