@@ -2,10 +2,10 @@
 
 import React from 'react';
 
-export default function Balances() {
+export default function AuthUsers() {
   return (
     <main>
-      <h1>Balances</h1>
+      <h1>Auth Users</h1>
     </main>
   );
 }
